@@ -1,149 +1,171 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>NEURAL_BREACH // SYNDICATE</title>
+    <title>BREACH // SPECTRE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030306;
+            --bg: #020204;
             --primary: #bc13fe;
             --secondary: #ff0055;
             --accent: #00d9ff;
-            --surface: rgba(12, 12, 20, 0.98);
-            --border: rgba(188, 19, 254, 0.35);
-            --glow: 0 0 15px rgba(188, 19, 254, 0.6);
+            --panel: rgba(8, 8, 12, 0.9);
+            --glow-str: 15px;
         }
 
         body {
             margin: 0; background: var(--bg); color: var(--accent);
-            font-family: 'JetBrains Mono', 'Orbitron', monospace;
-            overflow: hidden; height: 100vh;
+            font-family: 'JetBrains Mono', monospace; overflow: hidden; height: 100vh;
         }
 
-        /* 掃描線效果 */
-        body::after {
-            content: ""; position: fixed; inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                        repeating-linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.01));
+        /* 高級螢幕濾鏡：微掃描線 + 顆粒 */
+        .crt-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+                        repeating-linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
             background-size: 100% 3px, 3px 100%;
-            z-index: 100; pointer-events: none;
+            opacity: 0.8;
         }
 
-        #os-interface {
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            grid-template-rows: 70px 1fr 40px;
-            height: 100vh; gap: 12px; padding: 12px; box-sizing: border-box;
+        /* 介面框架 */
+        #os-frame {
+            display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 80px 1fr 50px;
+            height: 100vh; gap: 15px; padding: 15px; box-sizing: border-box;
         }
 
-        .neo-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 4px; position: relative;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px); overflow: hidden;
-            display: flex; flex-direction: column;
+        .neo-module {
+            background: var(--panel); border: 1px solid rgba(188, 19, 254, 0.2);
+            position: relative; box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
+            backdrop-filter: blur(15px); display: flex; flex-direction: column;
+            border-radius: 4px; transition: border 0.3s;
         }
 
         header { 
             grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 25px; border: 1px solid var(--primary);
-            background: linear-gradient(90deg, rgba(188, 19, 254, 0.2), transparent);
+            padding: 0 40px; border-bottom: 2px solid var(--primary);
+            background: linear-gradient(180deg, rgba(188, 19, 254, 0.1), transparent);
         }
 
-        .logo { font-family: 'Orbitron'; font-weight: 900; letter-spacing: 4px; color: #fff; text-shadow: var(--glow); }
-
-        /* 矩陣區 */
-        #breach-grid { grid-column: 2; grid-row: 2; position: relative; border: 1px solid rgba(0, 217, 255, 0.2); background: #000; }
-        canvas { width: 100%; height: 100%; }
-
-        svg { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
-        #link-line { stroke-dasharray: 15; animation: flow 0.8s linear infinite; filter: drop-shadow(0 0 8px var(--primary)); }
-        @keyframes flow { to { stroke-dashoffset: -30; } }
-
-        /* 終端日誌 */
-        #terminal {
-            flex: 1; padding: 12px; font-size: 11px; color: #5a5a7a; 
-            overflow-y: hidden; display: flex; flex-direction: column-reverse;
-            background: rgba(0,0,0,0.3);
+        .logo { 
+            font-family: 'Orbitron'; font-weight: 900; font-size: 1.8rem; 
+            letter-spacing: 12px; color: #fff; text-shadow: 0 0 var(--glow-str) var(--primary);
         }
 
-        .upgrade-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            padding: 14px; margin: 10px; cursor: pointer; transition: 0.2s;
+        /* 入侵區域 */
+        #matrix-container { 
+            grid-column: 2; grid-row: 2; position: relative; 
+            border: 1px solid rgba(0, 217, 255, 0.3); overflow: hidden;
         }
-        .upgrade-card:hover { border-color: var(--primary); background: rgba(188, 19, 254, 0.1); }
+        canvas { width: 100%; height: 100%; touch-action: none; }
 
-        .btn-execute {
-            background: transparent; border: 1px solid var(--secondary); color: var(--secondary);
-            padding: 15px; margin: 10px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold;
+        /* 側邊欄元件 */
+        .stat-box { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stat-label { font-size: 10px; color: #555; letter-spacing: 2px; }
+        .stat-value { font-family: 'Orbitron'; font-size: 2.2rem; color: #fff; }
+
+        #terminal-log {
+            flex: 1; padding: 20px; font-size: 11px; color: #3a3a4a;
+            overflow: hidden; display: flex; flex-direction: column-reverse;
+            background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.02);
         }
-        .btn-execute:active { background: var(--secondary); color: #fff; }
 
-        .pill { border: 1px solid #333; padding: 4px 10px; font-size: 10px; cursor: pointer; }
-        .pill.active { border-color: var(--accent); color: var(--accent); }
+        .market-btn {
+            background: rgba(255,255,255,0.02); border: 1px solid #1a1a25;
+            padding: 20px; margin: 12px; cursor: pointer; transition: 0.2s;
+            position: relative;
+        }
+        .market-btn:active { background: var(--primary); transform: scale(0.96); }
+        .market-btn b { display: block; font-size: 14px; color: #fff; }
 
-        .currency { font-family: 'Orbitron'; font-size: 2rem; color: #fff; text-shadow: 0 0 10px var(--secondary); }
+        .execute-btn {
+            background: transparent; border: 1px solid var(--secondary);
+            color: var(--secondary); padding: 20px; margin: 12px; font-family: 'Orbitron';
+            font-weight: 900; letter-spacing: 4px; cursor: pointer; transition: 0.4s;
+        }
+        .execute-btn:active { background: var(--secondary); color: #fff; box-shadow: 0 0 30px var(--secondary); }
+
+        /* 動畫線條 */
+        svg { position: absolute; inset: 0; pointer-events: none; }
+        #path-line { stroke-dasharray: 20; animation: flow 0.6s linear infinite; filter: drop-shadow(0 0 8px var(--primary)); }
+        @keyframes flow { to { stroke-dashoffset: -40; } }
+
+        /* Glitch Effect */
+        .glitch-flash { animation: glitch 0.2s linear; }
+        @keyframes glitch {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            33% { transform: translate(5px, -2px); filter: hue-rotate(90deg); }
+            66% { transform: translate(-5px, 2px); filter: hue-rotate(180deg); }
+            100% { transform: translate(0); filter: hue-rotate(0deg); }
+        }
     </style>
 </head>
 <body>
 
-    <div id="os-interface">
-        <header class="neo-panel">
-            <div class="logo">NEURAL_BREACH // SYNDICATE</div>
-            <div style="display:flex; gap:10px;">
-                <div class="pill active" onclick="setLang('zh')">ZH</div>
-                <div class="pill" onclick="setLang('en')">EN</div>
-            </div>
-        </header>
+<div class="crt-overlay"></div>
 
-        <aside class="neo-panel" style="padding: 15px;">
-            <div style="font-size: 10px; color: #666;">INTEGRITY</div>
-            <div id="sync-val" style="font-size: 2rem; font-family: 'Orbitron'; margin-bottom: 20px;">0%</div>
-            <div id="terminal"></div>
-            <button class="btn-execute" style="border-color:var(--primary); color:var(--primary);" onclick="initGrid()">REBOOT</button>
-        </aside>
+<div id="os-frame">
+    <header class="neo-module">
+        <div class="logo">BREACH</div>
+        <div id="op-id" style="font-size: 12px; color: var(--accent); border: 1px solid var(--accent); padding: 5px 15px; border-radius: 20px;">
+            ID: <span id="op-name" style="cursor:pointer">SPECTRE_01</span>
+        </div>
+    </header>
 
-        <main id="breach-grid">
-            <canvas id="gameCanvas"></canvas>
-            <svg>
-                <path id="link-line" d="" stroke="var(--primary)" stroke-width="3" fill="none" />
-                <circle id="pulse-node" r="4" fill="#fff">
-                    <animateMotion id="pulse-move" dur="1.5s" repeatCount="indefinite" path="" />
-                </circle>
-            </svg>
-        </main>
+    <aside class="neo-module">
+        <div class="stat-box">
+            <div class="stat-label">INTEGRITY</div>
+            <div id="sync-val" class="stat-value">0%</div>
+        </div>
+        <div id="terminal-log"></div>
+        <button class="execute-btn" style="border-color: var(--primary); color: var(--primary);" onclick="initGrid()">RESET_GRID</button>
+    </aside>
 
-        <aside class="neo-panel">
-            <div style="padding: 20px;">
-                <div style="font-size: 10px; color: #666;">CREDITS</div>
-                <div id="credits-display" class="currency">0000</div>
-            </div>
-            <div class="upgrade-card" onclick="upgrade('spike')">
-                <div style="display:flex; justify-content:space-between;"><b>Neural Spike</b> <span>50</span></div>
-                <div style="font-size:9px; color:#555; margin-top:5px;">Optimize extraction rewards</div>
-            </div>
-            <div style="flex:1"></div>
-            <button class="btn-execute" onclick="execute()">EXECUTE_BREACH</button>
-        </aside>
+    <main id="matrix-container" class="neo-module">
+        <canvas id="gameCanvas"></canvas>
+        <svg id="link-svg">
+            <path id="path-line" d="" stroke="var(--primary)" stroke-width="4" fill="none" />
+            <circle id="node-pulse" r="6" fill="#fff">
+                <animateMotion id="pulse-anim" dur="1.5s" repeatCount="indefinite" path="" />
+            </circle>
+        </svg>
+    </main>
 
-        <footer style="grid-column: 1/4; display: flex; justify-content: space-between; padding: 0 20px; font-size: 9px; color: #222;">
-            <div>IP_STATION: 127.0.0.1</div>
-            <div>STATUS: ENCRYPTED</div>
-        </footer>
-    </div>
+    <aside class="neo-module">
+        <div class="stat-box">
+            <div class="stat-label">CREDITS</div>
+            <div id="credit-val" class="stat-value" style="color:var(--secondary)">0000</div>
+        </div>
+        <div class="market-btn" onclick="upgrade('spike')">
+            <b>NEURAL SPIKE</b>
+            <span style="font-size: 10px; color: var(--accent);">Boost Data Gain (50 CR)</span>
+        </div>
+        <div class="market-btn" onclick="upgrade('bypass')">
+            <b>BYPASS CHIP</b>
+            <span style="font-size: 10px; color: var(--accent);">Remove All Walls (200 CR)</span>
+        </div>
+        <div style="flex:1"></div>
+        <button class="execute-btn" onclick="execute()">EXECUTE_BREACH</button>
+    </aside>
+
+    <footer style="grid-column: 1/4; display: flex; justify-content: space-between; padding: 0 30px; font-size: 10px; color: #222;">
+        <div>LOCATION: 35.6895° N, 139.6917° E</div>
+        <div>CONNECTION: SPECTRE_PROTOCOL_V4</div>
+    </footer>
+</div>
 
 <script>
-    const i18n = {
-        zh: { msg_win: "提取成功! +", msg_fail: "連線中斷，請重新配置" },
-        en: { msg_win: "DATA GAIN: ", msg_fail: "BREACH FAILED" }
-    };
-    let lang = 'zh', credits = 0, multi = 1, nodes = [], path = [];
-    const SYMBOLS = ['Ω', 'Ψ', 'Σ', 'Φ', 'Δ'];
+    let credits = 0, multi = 1, nodes = [], path = [];
+    const SYMBOLS = ['Ω', 'Ψ', 'Σ', 'Φ', 'Δ', 'Ξ'];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
+    // Operator ID
+    document.getElementById('op-name').onclick = () => {
+        const n = prompt("IDENTITY:");
+        if(n) document.getElementById('op-name').innerText = n.toUpperCase();
+    };
 
     function initGrid() {
         const b = canvas.parentElement.getBoundingClientRect();
@@ -155,7 +177,7 @@
                 let type = 'NODE';
                 if(r===2 && c===0) type = 'IN';
                 else if(r===2 && c===6) type = 'OUT';
-                else if(Math.random() > 0.8) type = 'WALL';
+                else if(Math.random() > 0.82) type = 'WALL';
                 nodes.push({
                     r, c, type,
                     x: (c+1)*(canvas.width/8),
@@ -166,6 +188,7 @@
             }
         }
         solve();
+        log("SYSTEM_INITIALIZED");
     }
 
     function solve() {
@@ -173,82 +196,118 @@
         const start = nodes.find(n => n.type==='IN');
         path = [start]; start.active = true;
         let curr = start;
+
         while(true) {
             let next = nodes.find(n => !n.active && n.type !== 'WALL' &&
-                Math.abs(n.r-curr.r) + Math.abs(n.c-curr.c) === 1 &&
-                (n.sym === curr.sym || n.type === 'OUT'));
+                Math.abs(n.r - curr.r) + Math.abs(n.c - curr.c) === 1 &&
+                (n.sym === curr.sym || n.type === 'OUT')
+            );
             if(next) {
                 next.active = true; path.push(next); curr = next;
                 if(curr.type==='OUT') break;
             } else break;
         }
+
         const d = path.map((p,i) => `${i===0?'M':'L'} ${p.x} ${p.y}`).join(' ');
-        document.getElementById('link-line').setAttribute('d', d);
-        document.getElementById('pulse-move').setAttribute('path', d);
+        document.getElementById('path-line').setAttribute('d', d);
+        document.getElementById('pulse-anim').setAttribute('path', d);
         document.getElementById('sync-val').innerText = `${Math.floor((path.length/8)*100)}%`;
         draw();
     }
 
     function draw() {
-        ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        // 背景粒子
-        ctx.fillStyle = 'rgba(0, 217, 255, 0.05)';
-        for(let i=0; i<30; i++) ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+        // 背景塗黑但保留微量透明感產生拖尾
+        ctx.fillStyle = "rgba(2, 2, 4, 0.4)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 繪製格點背景線
+        ctx.strokeStyle = "rgba(188, 19, 254, 0.05)";
+        ctx.lineWidth = 1;
+        for(let i=0; i<canvas.width; i+=50) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
 
         nodes.forEach(n => {
-            ctx.beginPath();
             if(n.type === 'NODE') {
-                ctx.arc(n.x, n.y, 25, 0, Math.PI*2);
-                ctx.strokeStyle = n.active ? 'var(--primary)' : '#1a1a1a';
-                ctx.lineWidth = n.active ? 3 : 1;
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 28, 0, Math.PI*2);
+                ctx.strokeStyle = n.active ? 'var(--primary)' : '#1a1a2a';
+                ctx.lineWidth = n.active ? 4 : 2;
                 ctx.stroke();
-                ctx.fillStyle = n.active ? '#fff' : '#333';
-                ctx.font = "16px monospace"; ctx.textAlign = "center";
-                ctx.fillText(n.sym, n.x, n.y+6);
+                
+                // 節點光暈
+                if(n.active) {
+                    ctx.shadowBlur = 15; ctx.shadowColor = "var(--primary)";
+                }
+                
+                ctx.fillStyle = n.active ? '#fff' : '#2a2a3a';
+                ctx.font = "bold 18px 'Orbitron'"; ctx.textAlign = "center";
+                ctx.fillText(n.sym, n.x, n.y+7);
+                ctx.shadowBlur = 0;
             } else {
                 ctx.fillStyle = n.type==='IN'?'#39ff14':(n.type==='OUT'?'#bc13fe':'#ff0055');
-                ctx.fillRect(n.x-15, n.y-15, 30, 30);
+                ctx.shadowBlur = 20; ctx.shadowColor = ctx.fillStyle;
+                ctx.fillRect(n.x-18, n.y-18, 36, 36);
+                ctx.shadowBlur = 0;
             }
         });
     }
 
     function handleInput(e) {
-        const r = canvas.getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - r.left;
-        const y = (e.clientY || e.touches[0].clientY) - r.top;
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = clientX - rect.left, y = clientY - rect.top;
+
         nodes.forEach(n => {
-            if(Math.hypot(n.x-x, n.y-y) < 30 && n.type==='NODE') {
+            if(Math.hypot(n.x-x, n.y-y) < 35 && n.type==='NODE') {
                 n.sym = SYMBOLS[(SYMBOLS.indexOf(n.sym)+1)%SYMBOLS.length];
-                log(`CONFIG_SHIFT: ${n.sym}`);
+                // 增加點擊時的 Glitch 感
+                document.getElementById('matrix-container').classList.add('glitch-flash');
+                setTimeout(() => document.getElementById('matrix-container').classList.remove('glitch-flash'), 200);
                 solve();
             }
         });
     }
 
-    canvas.addEventListener('mousedown', handleInput);
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(e); });
+    canvas.addEventListener('mousedown', handleInput);
 
     function upgrade(t) {
-        if(credits >= 50) { credits -= 50; multi += 0.5; log("NEURAL_SPIKE_ACTIVE"); updateUI(); }
+        if(t==='spike' && credits >= 50) {
+            credits -= 50; multi += 0.8; log("NEURAL_SPIKE: ONLINE");
+        } else if(t==='bypass' && credits >= 200) {
+            credits -= 200; nodes = nodes.filter(n => n.type !== 'WALL');
+            log("FIREWALL_BYPASS: SUCCESS");
+        } else {
+            log("INSUFFICIENT_CREDITS"); return;
+        }
+        updateUI(); solve();
     }
 
     function execute() {
         if(path[path.length-1].type === 'OUT') {
-            const gain = Math.floor(path.length * 10 * multi);
-            credits += gain; log(`EXTRACTED: ${gain} CR`);
-            alert(i18n[lang].msg_win + gain); initGrid();
-        } else { log("LINK_FAILURE"); }
+            const gain = Math.floor(path.length * 15 * multi);
+            credits += gain;
+            log(`BREACH_SUCCESS: +${gain} CR`);
+            initGrid();
+        } else {
+            log("ERROR: LINK_SEVERED");
+            document.body.classList.add('glitch-flash');
+            setTimeout(() => document.body.classList.remove('glitch-flash'), 200);
+        }
         updateUI();
     }
 
     function log(m) {
-        const t = document.getElementById('terminal');
-        t.innerHTML = `<div>> ${m}</div>` + t.innerHTML;
+        const t = document.getElementById('terminal-log');
+        const ts = new Date().toLocaleTimeString().split(' ')[0];
+        t.innerHTML = `<div><span style="color:var(--primary)">[${ts}]</span> ${m}</div>` + t.innerHTML;
     }
 
-    function updateUI() { document.getElementById('credits-display').innerText = credits.toString().padStart(4, '0'); }
-    function setLang(l) { lang = l; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.innerText.toLowerCase()===l)); }
+    function updateUI() {
+        document.getElementById('credit-val').innerText = credits.toString().padStart(4, '0');
+    }
 
+    window.addEventListener('resize', initGrid);
     initGrid();
 </script>
 </body>
