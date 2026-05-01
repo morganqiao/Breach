@@ -1,333 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>BREACH // SYNDICATE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;500;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --neon-p: #bc13fe; --neon-s: #ff0055; --neon-a: #00d9ff;
-            --bg-deep: #020205; --panel-bg: rgba(8, 8, 12, 0.95);
-            --border-ui: rgba(188, 19, 254, 0.4);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BREACH // SYNDICATE</title>
 
-        * { -webkit-tap-highlight-color: transparent; }
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;500;800&display=swap" rel="stylesheet">
 
-        body {
-            margin: 0; background: var(--bg-deep); color: var(--neon-a);
-            font-family: 'JetBrains Mono', monospace; overflow: hidden; height: 100vh;
-        }
+<style>
+:root {
+--neon-p:#bc13fe; --neon-s:#ff0055; --neon-a:#00d9ff;
+--bg:#020205;
+}
 
-        /* 終端濾鏡 (CRT + Scanlines) */
-        .overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
-                        repeating-linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.02));
-            background-size: 100% 4px, 4px 100%; opacity: 0.7;
-        }
+body {margin:0;background:var(--bg);color:var(--neon-a);font-family:'JetBrains Mono';overflow:hidden;}
 
-        #main-shell {
-            display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            grid-template-rows: 90px 1fr 50px;
-            height: 100vh; gap: 12px; padding: 12px; box-sizing: border-box;
-        }
+.overlay {
+position:fixed;inset:0;pointer-events:none;
+background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 2px,transparent 2px 4px);
+opacity:.4;
+}
 
-        .neo-frame {
-            background: var(--panel-bg); border: 1px solid var(--border-ui);
-            position: relative; box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
-            backdrop-filter: blur(15px); overflow: hidden;
-        }
+#main {display:grid;grid-template-columns:300px 1fr 300px;height:100vh;gap:10px;padding:10px;}
 
-        /* Header */
-        header { 
-            grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 40px; border-bottom: 2px solid var(--neon-p);
-            background: linear-gradient(90deg, rgba(188, 19, 254, 0.1), transparent);
-        }
+.panel {background:rgba(0,0,0,.85);border:1px solid var(--neon-p);padding:15px;}
 
-        .title-unit { display: flex; flex-direction: column; }
-        .main-logo { font-family: 'Orbitron'; font-size: 32px; font-weight: 900; letter-spacing: 12px; color: #fff; text-shadow: 0 0 20px var(--neon-p); }
-        .sub-logo { font-size: 10px; letter-spacing: 2px; color: var(--neon-p); opacity: 0.8; }
+canvas {width:100%;height:100%;}
 
-        /* Left Side: System */
-        .side-panel { display: flex; flex-direction: column; }
-        .stat-block { padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .label { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 2px; }
-        .value { font-family: 'Orbitron'; font-size: 2.4rem; color: #fff; margin-top: 5px; }
+button {cursor:pointer;background:none;border:1px solid var(--neon-s);color:var(--neon-s);padding:15px;font-family:Orbitron;}
 
-        #terminal-log {
-            flex: 1; padding: 15px; font-size: 11px; line-height: 1.5;
-            display: flex; flex-direction: column-reverse; overflow-y: auto;
-            color: #556; scrollbar-width: none;
-        }
-        #terminal-log div:first-child { color: var(--neon-a); font-weight: bold; }
+#tutorial {
+position:fixed;inset:0;background:rgba(0,0,0,.9);
+display:flex;align-items:center;justify-content:center;z-index:9999;
+}
 
-        /* Center: Grid */
-        #viewport { grid-column: 2; grid-row: 2; position: relative; border: 1px solid rgba(0,217,255,0.2); }
-        canvas { width: 100%; height: 100%; touch-action: none; }
-
-        svg { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
-        #data-stream { stroke-dasharray: 20, 10; animation: streaming 0.6s linear infinite; filter: drop-shadow(0 0 8px var(--neon-p)); }
-        @keyframes streaming { to { stroke-dashoffset: -30; } }
-
-        /* Right Side: Market */
-        .upgrade-btn {
-            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; transition: 0.2s; position: relative;
-        }
-        .upgrade-btn:active { background: rgba(188, 19, 254, 0.2); transform: translateX(5px); }
-        .upgrade-btn .cost { position: absolute; right: 20px; top: 20px; color: var(--neon-s); font-weight: bold; }
-
-        .execute-btn {
-            margin: 20px; padding: 25px; background: transparent;
-            border: 2px solid var(--neon-s); color: var(--neon-s);
-            font-family: 'Orbitron'; font-weight: 900; font-size: 18px;
-            letter-spacing: 4px; cursor: pointer; transition: 0.4s;
-        }
-        .execute-btn:active { background: var(--neon-s); color: #fff; box-shadow: 0 0 30px var(--neon-s); }
-
-        /* Shake Effect */
-        .shake { animation: screenShake 0.2s; }
-        @keyframes screenShake {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(-3px, 2px); }
-            50% { transform: translate(3px, -2px); }
-            100% { transform: translate(0,0); }
-        }
-    </style>
+#tutorial-box {
+border:1px solid var(--neon-a);padding:25px;max-width:500px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="overlay"></div>
 
-<div id="main-shell">
-    <header class="neo-frame">
-        <div class="title-unit">
-            <div class="main-logo">BREACH</div>
-            <div class="sub-logo">QUANTUM SYNDICATE TERMINAL // v2.4.0</div>
-        </div>
-        <div style="text-align: right;">
-            <div class="label">SESSION_ID</div>
-            <div style="font-size: 14px; font-weight: bold;">#88-AX-0922</div>
-        </div>
-    </header>
+<div id="tutorial">
+<div id="tutorial-box">
+<h2>TRAINING MODE</h2>
+<p id="t-text"></p>
+<button onclick="nextTutorial()">NEXT</button>
+</div>
+</div>
 
-    <aside class="neo-frame side-panel">
-        <div class="stat-block">
-            <div class="label">NEURAL_SYNC</div>
-            <div id="sync-val" class="value">0%</div>
-            <div style="width: 100%; height: 2px; background: #111; margin-top: 10px;">
-                <div id="sync-bar" style="width: 0%; height: 100%; background: var(--neon-a); transition: 0.5s;"></div>
-            </div>
-        </div>
-        <div id="terminal-log"></div>
-    </aside>
+<div id="main">
 
-    <main id="viewport" class="neo-frame">
-        <canvas id="gameCanvas"></canvas>
-        <svg><path id="data-stream" d="" stroke="var(--neon-p)" stroke-width="4" fill="none" /></svg>
-    </main>
+<div class="panel">
+<div>SYNC: <span id="sync">0%</span></div>
+<div>MOVES: <span id="moves">15</span></div>
+<div>COMBO: <span id="combo">1.0</span></div>
+<div id="log"></div>
+</div>
 
-    <aside class="neo-frame side-panel">
-        <div class="stat-block">
-            <div class="label">CREDITS_EXTRACTED</div>
-            <div id="credit-val" class="value" style="color: var(--neon-s);">0000</div>
-        </div>
-        
-        <div class="upgrade-btn" onclick="buy('spike')">
-            <div class="cost">50</div>
-            <div style="font-weight: 800;">Neural Spike</div>
-            <div style="font-size: 10px; opacity: 0.4;">Deepens data extraction (+60%)</div>
-        </div>
+<div class="panel">
+<canvas id="c"></canvas>
+</div>
 
-        <div class="upgrade-btn" onclick="buy('shroud')">
-            <div class="cost">120</div>
-            <div style="font-weight: 800;">Ghost Shroud</div>
-            <div style="font-size: 10px; opacity: 0.4;">Reduces trace levels by 25%</div>
-        </div>
+<div class="panel">
+<div>CREDITS: <span id="cr">0</span></div>
+<button onclick="execute()">EXECUTE</button>
+</div>
 
-        <div class="upgrade-btn" onclick="buy('bypass')">
-            <div class="cost">200</div>
-            <div style="font-weight: 800;">Bypass Kit</div>
-            <div style="font-size: 10px; opacity: 0.4;">Delete all firewall nodes</div>
-        </div>
-
-        <div style="flex: 1;"></div>
-        <button class="execute-btn" onclick="execute()">EXECUTE_BREACH</button>
-    </aside>
-
-    <footer style="grid-column: 1/4; display: flex; justify-content: space-between; padding: 0 20px; font-size: 10px; opacity: 0.3;">
-        <div>LATENCY: 14ms</div>
-        <div>UPLINK: ENCRYPTED // TUNNEL: VORTEX_01</div>
-        <div>LOCAL_TIME: <span id="clock">00:00:00</span></div>
-    </footer>
 </div>
 
 <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const SYMBOLS = ['Ω', 'Ψ', 'Σ', 'Φ', 'Δ', 'Ξ'];
-    let nodes = [], path = [], credits = 0, multi = 1;
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
 
-    // 初始化網格
-    function init() {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = rect.width; canvas.height = rect.height;
-        nodes = [];
-        const rows = 5, cols = 8;
-        for(let r=0; r<rows; r++) {
-            for(let c=0; c<cols; c++) {
-                let type = 'NODE';
-                if(r===2 && c===0) type = 'IN';
-                else if(r===2 && c===7) type = 'OUT';
-                else if(Math.random() > 0.85) type = 'WALL';
-                
-                nodes.push({
-                    r, c, type,
-                    x: (c+1)*(canvas.width/9),
-                    y: (r+1)*(canvas.height/6),
-                    sym: SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],
-                    active: false,
-                    offset: Math.random() * Math.PI * 2
-                });
-            }
-        }
-        solve();
-        addLog("SYSTEM_REBOOT_COMPLETE");
-        addLog("ESTABLISHING_MOBILE_UPLINK...");
-    }
+let nodes=[],path=[],credits=0,multi=1;
+let moves=15,combo=1,difficulty=1;
 
-    // 連線邏輯
-    function solve() {
-        nodes.forEach(n => n.active = false);
-        const start = nodes.find(n => n.type==='IN');
-        path = [start]; start.active = true;
-        let curr = start;
+const SYM=['Ω','Ψ','Σ','Φ','Δ','Ξ'];
 
-        while(true) {
-            let next = nodes.find(n => !n.active && n.type !== 'WALL' &&
-                Math.abs(n.r - curr.r) + Math.abs(n.c - curr.c) === 1 &&
-                (n.sym === curr.sym || n.type === 'OUT')
-            );
-            if(next) {
-                next.active = true; path.push(next); curr = next;
-                if(curr.type==='OUT') break;
-            } else break;
-        }
+function init(){
+const r=canvas.parentElement.getBoundingClientRect();
+canvas.width=r.width; canvas.height=r.height;
 
-        const d = path.map((p,i) => `${i===0?'M':'L'} ${p.x} ${p.y}`).join(' ');
-        document.getElementById('data-stream').setAttribute('d', d);
-        
-        const syncPercent = Math.floor((path.length/9)*100);
-        document.getElementById('sync-val').innerText = `${syncPercent}%`;
-        document.getElementById('sync-bar').style.width = `${syncPercent}%`;
-    }
+nodes=[]; moves=15;
+document.getElementById("moves").innerText=moves;
 
-    // 繪製
-    function render() {
-        ctx.fillStyle = '#010103'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        
-        // 背景流動網格
-        const time = Date.now() * 0.001;
-        ctx.strokeStyle = 'rgba(0, 217, 255, 0.03)';
-        ctx.lineWidth = 1;
-        for(let i=0; i<canvas.width; i+=40) {
-            ctx.beginPath();
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i + Math.sin(time + i)*10, canvas.height);
-            ctx.stroke();
-        }
+for(let y=0;y<5;y++){
+for(let x=0;x<8;x++){
+let t='NODE';
+if(y==2&&x==0)t='IN';
+else if(y==2&&x==7)t='OUT';
+else if(Math.random()<0.15+difficulty*0.05)t='WALL';
 
-        nodes.forEach(n => {
-            const hoverY = Math.sin(time + n.offset) * 3;
-            if(n.type === 'NODE') {
-                ctx.beginPath();
-                ctx.arc(n.x, n.y + hoverY, 28, 0, Math.PI*2);
-                ctx.strokeStyle = n.active ? 'var(--neon-p)' : '#1a1a25';
-                ctx.lineWidth = n.active ? 3 : 1;
-                ctx.stroke();
+nodes.push({
+x:(x+1)*(canvas.width/9),
+y:(y+1)*(canvas.height/6),
+r:y,c:x,type:t,
+sym:SYM[Math.floor(Math.random()*SYM.length)],
+active:false
+});
+}}
+solve();
+}
 
-                if(n.active) {
-                    ctx.shadowBlur = 15; ctx.shadowColor = 'var(--neon-p)';
-                    ctx.fillStyle = '#fff';
-                } else {
-                    ctx.fillStyle = '#334';
-                }
-                ctx.font = "bold 18px 'JetBrains Mono'"; ctx.textAlign = "center";
-                ctx.fillText(n.sym, n.x, n.y + 7 + hoverY);
-                ctx.shadowBlur = 0;
-            } else {
-                ctx.fillStyle = n.type==='IN'?'#39ff14':(n.type==='OUT'?'#bc13fe':'#ff0055');
-                ctx.shadowBlur = n.active ? 20 : 0; ctx.shadowColor = ctx.fillStyle;
-                ctx.fillRect(n.x-18, n.y-18 + hoverY, 36, 36);
-                ctx.shadowBlur = 0;
-            }
-        });
-        requestAnimationFrame(render);
-    }
+function solve(){
+nodes.forEach(n=>n.active=false);
+let s=nodes.find(n=>n.type=='IN');
+let cur=s; path=[s]; s.active=true;
 
-    function handleInteraction(e) {
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const touch = e.touches ? e.touches[0] : e;
-        const x = touch.clientX - rect.left, y = touch.clientY - rect.top;
+while(true){
+let next=nodes.find(n=>!n.active&&n.type!='WALL'&&
+Math.abs(n.r-cur.r)+Math.abs(n.c-cur.c)==1 &&
+(n.sym==cur.sym||n.type=='OUT'));
 
-        nodes.forEach(n => {
-            if(Math.hypot(n.x-x, n.y-y) < 40 && n.type==='NODE') {
-                n.sym = SYMBOLS[(SYMBOLS.indexOf(n.sym)+1)%SYMBOLS.length];
-                solve();
-                addLog(`NODE_[${n.r},${n.c}]_RECONFIGURED`);
-                
-                // iPad 震動反饋模擬
-                document.getElementById('viewport').classList.add('shake');
-                setTimeout(() => document.getElementById('viewport').classList.remove('shake'), 200);
-            }
-        });
-    }
+if(!next)break;
+next.active=true; path.push(next); cur=next;
+if(cur.type=='OUT')break;
+}
 
-    function execute() {
-        if(path[path.length-1].type === 'OUT') {
-            const gain = Math.floor(path.length * 20 * multi);
-            credits += gain;
-            addLog(`BREACH_SUCCESSFUL: EXTRACTED ${gain} CR`);
-            document.getElementById('credit-val').innerText = credits.toString().padStart(4, '0');
-            init();
-        } else {
-            addLog("CRITICAL_ERR: CONNECTION_LOST");
-            document.getElementById('main-shell').classList.add('shake');
-            setTimeout(() => document.getElementById('main-shell').classList.remove('shake'), 200);
-        }
-    }
+let sync=Math.floor(path.length/9*100);
+document.getElementById("sync").innerText=sync+"%";
+}
 
-    function buy(item) {
-        if(item==='spike' && credits>=50) { credits-=50; multi+=0.6; addLog("MODULE_INSTALLED: NEURAL_SPIKE"); }
-        else if(item==='shroud' && credits>=120) { credits-=120; addLog("MODULE_INSTALLED: GHOST_SHROUD"); }
-        else if(item==='bypass' && credits>=200) { credits-=200; nodes=nodes.filter(n=>n.type!=='WALL'); addLog("MODULE_INSTALLED: BYPASS_KIT"); }
-        else { addLog("ERR: INSUFFICIENT_CREDITS"); return; }
-        document.getElementById('credit-val').innerText = credits.toString().padStart(4, '0');
-        solve();
-    }
+function draw(){
+ctx.fillStyle="#000";ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    function addLog(m) {
-        const log = document.getElementById('terminal-log');
-        const d = new Date();
-        const ts = `[${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}]`;
-        log.innerHTML = `<div>${ts} > ${m}</div>` + log.innerHTML;
-    }
+nodes.forEach(n=>{
+ctx.beginPath();
+if(n.type=='NODE'){
+ctx.arc(n.x,n.y,25,0,Math.PI*2);
+ctx.strokeStyle=n.active?"#bc13fe":"#222";
+ctx.stroke();
+ctx.fillStyle="#fff";
+ctx.fillText(n.sym,n.x-5,n.y+5);
+}
+else{
+ctx.fillStyle=n.type=='IN'?"#0f0":(n.type=='OUT'?"#bc13fe":"#f05");
+ctx.fillRect(n.x-15,n.y-15,30,30);
+}
+});
 
-    function updateClock() {
-        const d = new Date();
-        document.getElementById('clock').innerText = d.toLocaleTimeString();
-    }
+if(path[path.length-1].type=='OUT'){
+ctx.shadowBlur=20;
+ctx.shadowColor="#00ffcc";
+}
 
-    canvas.addEventListener('touchstart', handleInteraction);
-    canvas.addEventListener('mousedown', handleInteraction);
-    window.addEventListener('resize', init);
-    
-    setInterval(updateClock, 1000);
-    init(); render();
+requestAnimationFrame(draw);
+}
+
+canvas.onclick=e=>{
+if(moves<=0)return;
+
+const rect=canvas.getBoundingClientRect();
+const x=e.clientX-rect.left,y=e.clientY-rect.top;
+
+nodes.forEach(n=>{
+if(n.type=='NODE'&&Math.hypot(n.x-x,n.y-y)<30){
+n.sym=SYM[(SYM.indexOf(n.sym)+1)%SYM.length];
+moves--;
+document.getElementById("moves").innerText=moves;
+solve();
+}
+});
+};
+
+function execute(){
+if(path[path.length-1].type=='OUT'){
+combo+=0.5;
+let gain=Math.floor(path.length*20*combo);
+credits+=gain;
+difficulty+=0.2;
+
+log("SUCCESS +"+gain);
+init();
+}else{
+combo=1;
+log("FAIL");
+}
+document.getElementById("combo").innerText=combo.toFixed(1);
+document.getElementById("cr").innerText=credits;
+}
+
+function log(t){
+document.getElementById("log").innerHTML=t+"<br>"+document.getElementById("log").innerHTML;
+}
+
+/* tutorial */
+let step=0;
+const steps=[
+"Connect green to purple.",
+"Tap nodes to rotate symbols.",
+"Matching symbols link.",
+"Reach exit then EXECUTE.",
+"Earn credits. Increase combo.",
+"Good luck."
+];
+
+function nextTutorial(){
+step++;
+if(step>=steps.length){
+document.getElementById("tutorial").style.display="none";
+return;
+}
+document.getElementById("t-text").innerText=steps[step];
+}
+document.getElementById("t-text").innerText=steps[0];
+
+init(); draw();
 </script>
+
 </body>
 </html>
