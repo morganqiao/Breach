@@ -2,214 +2,227 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>BREACH // SYNDICATE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREACH v3</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;500;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-:root {
---neon-p:#bc13fe; --neon-s:#ff0055; --neon-a:#00d9ff;
---bg:#020205;
+body {
+margin:0;
+background:#020205;
+color:#00d9ff;
+font-family:'JetBrains Mono';
+overflow:hidden;
 }
 
-body {margin:0;background:var(--bg);color:var(--neon-a);font-family:'JetBrains Mono';overflow:hidden;}
-
-.overlay {
-position:fixed;inset:0;pointer-events:none;
-background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 2px,transparent 2px 4px);
-opacity:.4;
+#ui {
+position:fixed; top:0; left:0; right:0;
+display:flex; justify-content:space-between;
+padding:10px 20px;
+font-size:12px;
 }
 
-#main {display:grid;grid-template-columns:300px 1fr 300px;height:100vh;gap:10px;padding:10px;}
-
-.panel {background:rgba(0,0,0,.85);border:1px solid var(--neon-p);padding:15px;}
-
-canvas {width:100%;height:100%;}
-
-button {cursor:pointer;background:none;border:1px solid var(--neon-s);color:var(--neon-s);padding:15px;font-family:Orbitron;}
+canvas { display:block; }
 
 #tutorial {
-position:fixed;inset:0;background:rgba(0,0,0,.9);
-display:flex;align-items:center;justify-content:center;z-index:9999;
+position:fixed; inset:0;
+background:rgba(0,0,0,.9);
+display:flex; align-items:center; justify-content:center;
+z-index:10;
 }
 
-#tutorial-box {
-border:1px solid var(--neon-a);padding:25px;max-width:500px;
+#box {
+border:1px solid #00d9ff;
+padding:25px;
+max-width:500px;
+}
+button {
+background:none;
+border:1px solid #00d9ff;
+color:#00d9ff;
+padding:10px;
+margin-top:15px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="overlay"></div>
-
 <div id="tutorial">
-<div id="tutorial-box">
-<h2>TRAINING MODE</h2>
-<p id="t-text"></p>
-<button onclick="nextTutorial()">NEXT</button>
+<div id="box">
+<h2>BREACH TRAINING</h2>
+<p id="t"></p>
+<button onclick="next()">NEXT</button>
 </div>
 </div>
 
-<div id="main">
-
-<div class="panel">
-<div>SYNC: <span id="sync">0%</span></div>
-<div>MOVES: <span id="moves">15</span></div>
-<div>COMBO: <span id="combo">1.0</span></div>
-<div id="log"></div>
-</div>
-
-<div class="panel">
-<canvas id="c"></canvas>
-</div>
-
-<div class="panel">
+<div id="ui">
+<div>STABILITY: <span id="hp">100</span></div>
 <div>CREDITS: <span id="cr">0</span></div>
-<button onclick="execute()">EXECUTE</button>
+<div>COMBO: <span id="cb">1</span></div>
 </div>
 
-</div>
+<canvas id="c"></canvas>
 
 <script>
-const canvas=document.getElementById("c");
-const ctx=canvas.getContext("2d");
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
 
-let nodes=[],path=[],credits=0,multi=1;
-let moves=15,combo=1,difficulty=1;
+let nodes=[], path=[], dragging=false;
+let credits=0, combo=1, stability=100;
 
-const SYM=['Ω','Ψ','Σ','Φ','Δ','Ξ'];
+const SIZE=6;
 
+function resize(){
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+}
+window.onresize=resize;
+resize();
+
+/* CREATE GRID WITH GUARANTEED SOLUTION */
 function init(){
-const r=canvas.parentElement.getBoundingClientRect();
-canvas.width=r.width; canvas.height=r.height;
+nodes=[]; path=[];
+stability=100;
 
-nodes=[]; moves=15;
-document.getElementById("moves").innerText=moves;
+let solution=[];
+for(let i=0;i<SIZE;i++){
+solution.push({r:i,c:i});
+}
 
-for(let y=0;y<5;y++){
-for(let x=0;x<8;x++){
-let t='NODE';
-if(y==2&&x==0)t='IN';
-else if(y==2&&x==7)t='OUT';
-else if(Math.random()<0.15+difficulty*0.05)t='WALL';
+for(let r=0;r<SIZE;r++){
+for(let c=0;c<SIZE;c++){
+
+let isPath = solution.find(p=>p.r==r&&p.c==c);
 
 nodes.push({
-x:(x+1)*(canvas.width/9),
-y:(y+1)*(canvas.height/6),
-r:y,c:x,type:t,
-sym:SYM[Math.floor(Math.random()*SYM.length)],
+r,c,
+x:(c+1)*(canvas.width/(SIZE+1)),
+y:(r+1)*(canvas.height/(SIZE+1)),
+type: isPath ? "PATH" : "FAKE",
 active:false
 });
-}}
-solve();
+}
+}
 }
 
-function solve(){
-nodes.forEach(n=>n.active=false);
-let s=nodes.find(n=>n.type=='IN');
-let cur=s; path=[s]; s.active=true;
+/* INPUT */
+canvas.onmousedown=e=>{
+dragging=true;
+path=[];
+handle(e);
+};
+canvas.onmousemove=e=>{
+if(dragging) handle(e);
+};
+canvas.onmouseup=()=>dragging=false;
 
-while(true){
-let next=nodes.find(n=>!n.active&&n.type!='WALL'&&
-Math.abs(n.r-cur.r)+Math.abs(n.c-cur.c)==1 &&
-(n.sym==cur.sym||n.type=='OUT'));
+function handle(e){
+const rect=canvas.getBoundingClientRect();
+const x=e.clientX-rect.left;
+const y=e.clientY-rect.top;
 
-if(!next)break;
-next.active=true; path.push(next); cur=next;
-if(cur.type=='OUT')break;
+nodes.forEach(n=>{
+if(Math.hypot(n.x-x,n.y-y)<30){
+if(!path.includes(n)){
+path.push(n);
+n.active=true;
+}
+}
+});
 }
 
-let sync=Math.floor(path.length/9*100);
-document.getElementById("sync").innerText=sync+"%";
+/* GAME LOGIC */
+function update(){
+if(path.length>1){
+for(let i=1;i<path.length;i++){
+let a=path[i-1], b=path[i];
+if(Math.abs(a.r-b.r)+Math.abs(a.c-b.c)>1){
+fail();
+return;
+}
+}
+}
 }
 
+function fail(){
+stability-=5;
+combo=1;
+path=[];
+
+if(stability<=0){
+credits=0;
+init();
+}
+}
+
+function success(){
+let score = Math.floor(path.length*10*combo);
+credits+=score;
+combo+=0.5;
+init();
+}
+
+/* DRAW */
 function draw(){
-ctx.fillStyle="#000";ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle="#020205";
+ctx.fillRect(0,0,canvas.width,canvas.height);
 
 nodes.forEach(n=>{
 ctx.beginPath();
-if(n.type=='NODE'){
-ctx.arc(n.x,n.y,25,0,Math.PI*2);
-ctx.strokeStyle=n.active?"#bc13fe":"#222";
+ctx.arc(n.x,n.y,20,0,Math.PI*2);
+ctx.strokeStyle = n.active ? "#bc13fe" : "#222";
 ctx.stroke();
-ctx.fillStyle="#fff";
-ctx.fillText(n.sym,n.x-5,n.y+5);
-}
-else{
-ctx.fillStyle=n.type=='IN'?"#0f0":(n.type=='OUT'?"#bc13fe":"#f05");
-ctx.fillRect(n.x-15,n.y-15,30,30);
-}
 });
 
-if(path[path.length-1].type=='OUT'){
-ctx.shadowBlur=20;
-ctx.shadowColor="#00ffcc";
+if(path.length>1){
+ctx.beginPath();
+ctx.moveTo(path[0].x,path[0].y);
+for(let p of path){
+ctx.lineTo(p.x,p.y);
 }
+ctx.strokeStyle="#00d9ff";
+ctx.lineWidth=3;
+ctx.stroke();
+}
+
+update();
+
+if(path.length>5){
+success();
+path=[];
+}
+
+document.getElementById("hp").innerText=stability;
+document.getElementById("cr").innerText=credits;
+document.getElementById("cb").innerText=combo.toFixed(1);
 
 requestAnimationFrame(draw);
 }
 
-canvas.onclick=e=>{
-if(moves<=0)return;
-
-const rect=canvas.getBoundingClientRect();
-const x=e.clientX-rect.left,y=e.clientY-rect.top;
-
-nodes.forEach(n=>{
-if(n.type=='NODE'&&Math.hypot(n.x-x,n.y-y)<30){
-n.sym=SYM[(SYM.indexOf(n.sym)+1)%SYM.length];
-moves--;
-document.getElementById("moves").innerText=moves;
-solve();
-}
-});
-};
-
-function execute(){
-if(path[path.length-1].type=='OUT'){
-combo+=0.5;
-let gain=Math.floor(path.length*20*combo);
-credits+=gain;
-difficulty+=0.2;
-
-log("SUCCESS +"+gain);
-init();
-}else{
-combo=1;
-log("FAIL");
-}
-document.getElementById("combo").innerText=combo.toFixed(1);
-document.getElementById("cr").innerText=credits;
-}
-
-function log(t){
-document.getElementById("log").innerHTML=t+"<br>"+document.getElementById("log").innerHTML;
-}
-
-/* tutorial */
+/* TUTORIAL */
 let step=0;
 const steps=[
-"Connect green to purple.",
-"Tap nodes to rotate symbols.",
-"Matching symbols link.",
-"Reach exit then EXECUTE.",
-"Earn credits. Increase combo.",
-"Good luck."
+"Drag across nodes.",
+"Stay connected (no jumping).",
+"Longer paths = more credits.",
+"Mistakes reduce stability.",
+"Chain combos for big score."
 ];
 
-function nextTutorial(){
+function next(){
 step++;
 if(step>=steps.length){
 document.getElementById("tutorial").style.display="none";
 return;
 }
-document.getElementById("t-text").innerText=steps[step];
+document.getElementById("t").innerText=steps[step];
 }
-document.getElementById("t-text").innerText=steps[0];
+document.getElementById("t").innerText=steps[0];
 
-init(); draw();
+init();
+draw();
 </script>
 
 </body>
