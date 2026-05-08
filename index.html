@@ -1,229 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BREACH v3</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BREACH: OVERLORD // PERSISTENT DATA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;700&family=Noto+Sans+TC:wght@500&family=Noto+Sans+Thai:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00d9ff; --dark: #020205; --warn: #ff0055; --glow: rgba(0, 217, 255, 0.4); }
+        
+        body, html { margin: 0; padding: 0; background: var(--dark); color: var(--neon); font-family: 'JetBrains Mono', 'Noto Sans TC', 'Noto Sans Thai', monospace; overflow: hidden; height: 100vh; }
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+        #bg-canvas { position: fixed; inset: 0; z-index: 1; opacity: 0.3; }
 
-<style>
-body {
-margin:0;
-background:#020205;
-color:#00d9ff;
-font-family:'JetBrains Mono';
-overflow:hidden;
-}
+        #os-container { position: relative; display: grid; grid-template-columns: 300px 1fr 300px; height: 100vh; z-index: 10; border: 2px solid rgba(0, 217, 255, 0.1); box-sizing: border-box; }
 
-#ui {
-position:fixed; top:0; left:0; right:0;
-display:flex; justify-content:space-between;
-padding:10px 20px;
-font-size:12px;
-}
+        .panel { background: rgba(0, 5, 10, 0.95); border: 1px solid rgba(0, 217, 255, 0.2); backdrop-filter: blur(15px); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        
+        #viewport { position: relative; overflow: hidden; background: radial-gradient(circle at center, #0a0a15 0%, #020205 100%); }
+        #game-canvas { display: block; cursor: crosshair; }
 
-canvas { display:block; }
+        #header { grid-column: 1 / -1; height: 60px; background: rgba(0, 217, 255, 0.05); border-bottom: 1px solid var(--neon); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-family: 'Orbitron'; z-index: 100; }
 
-#tutorial {
-position:fixed; inset:0;
-background:rgba(0,0,0,.9);
-display:flex; align-items:center; justify-content:center;
-z-index:10;
-}
+        h2 { font-size: 12px; margin: 0; color: #fff; letter-spacing: 2px; border-left: 3px solid var(--neon); padding-left: 10px; }
+        .val { display: block; font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 0 10px var(--glow); }
+        
+        .btn { background: rgba(0, 217, 255, 0.05); border: 1px solid var(--neon); color: var(--neon); padding: 12px; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; transition: 0.2s; text-align: left; }
+        .btn:hover:not(:disabled) { background: var(--neon); color: var(--dark); font-weight: 900; }
+        .btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
-#box {
-border:1px solid #00d9ff;
-padding:25px;
-max-width:500px;
-}
-button {
-background:none;
-border:1px solid #00d9ff;
-color:#00d9ff;
-padding:10px;
-margin-top:15px;
-}
-</style>
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        #terminal-box { width: 600px; border: 1px solid var(--neon); padding: 40px; background: #00050a; box-shadow: 0 0 100px rgba(0, 217, 255, 0.1); }
+        
+        .fill { height: 100%; background: var(--neon); transition: 0.3s; box-shadow: 0 0 10px var(--neon); }
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.05); margin-top: 8px; }
+
+        #logs { font-size: 10px; color: #00d9ff66; height: 100%; overflow-y: hidden; line-height: 1.6; }
+        .save-indicator { font-size: 9px; color: var(--warn); display: none; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
 </head>
-
 <body>
 
-<div id="tutorial">
-<div id="box">
-<h2>BREACH TRAINING</h2>
-<p id="t"></p>
-<button onclick="next()">NEXT</button>
-</div>
+<canvas id="bg-canvas"></canvas>
+
+<div id="os-container">
+    <header id="header">
+        <div>CORE_LINK: <span id="l-stat">ACTIVE</span> <span id="save-tag" class="save-indicator">● SYNCING_MEMORY</span></div>
+        <div style="display:flex; gap: 50px;">
+            <div><span id="l-hp-text">STABILITY</span> <span id="hp" class="val">100</span></div>
+            <div><span id="l-cr-text">CREDITS</span> <span id="cr" class="val">0</span></div>
+            <div><span id="l-sc-text">SECTOR</span> <span id="sc" class="val">1</span></div>
+        </div>
+        <select id="lang-select" onchange="changeLang(this.value)" style="background:#000; color:var(--neon); border:1px solid var(--neon); font-family:inherit; padding: 5px;">
+            <option value="en">EN-US</option>
+            <option value="zh">ZH-TW</option>
+            <option value="th">TH-TH</option>
+        </select>
+    </header>
+
+    <aside class="panel">
+        <h2 id="l-aug">AUGMENTATIONS</h2>
+        <div class="stat-item">
+            <span id="l-up1">SIGNAL REINFORCEMENT</span>
+            <div class="progress-bar"><div id="hp-bar" class="fill"></div></div>
+            <button class="btn" onclick="upgrade('hp')" id="up-hp" style="width:100%; margin-top:10px;">UPGRADE [500 CR]</button>
+        </div>
+        <div class="stat-item">
+            <span id="l-up2">EXTRACTION EFFICIENCY</span>
+            <div class="progress-bar"><div id="cb-bar" class="fill"></div></div>
+            <button class="btn" onclick="upgrade('cb')" id="up-cb" style="width:100%; margin-top:10px;">UPGRADE [750 CR]</button>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn" onclick="hardReset()" style="border-color: var(--warn); color: var(--warn); opacity: 0.6; font-size: 8px;">WIPE ALL MEMORY DATA</button>
+    </aside>
+
+    <main id="viewport">
+        <canvas id="game-canvas"></canvas>
+    </main>
+
+    <aside class="panel">
+        <h2 id="l-feed">TERMINAL_FEED</h2>
+        <div id="logs"></div>
+    </aside>
 </div>
 
-<div id="ui">
-<div>STABILITY: <span id="hp">100</span></div>
-<div>CREDITS: <span id="cr">0</span></div>
-<div>COMBO: <span id="cb">1</span></div>
+<div id="modal">
+    <div id="terminal-box">
+        <h1 id="t-title" style="font-family: 'Orbitron'; color: #fff;"></h1>
+        <p id="t-desc" style="white-space: pre-line; color: #888; font-size: 14px; line-height: 1.8;"></p>
+        <button class="btn" onclick="closeModal()" id="t-btn" style="float:right; font-size:14px; padding: 15px 40px; background: var(--neon); color: #000; font-weight: 900;"></button>
+    </div>
 </div>
-
-<canvas id="c"></canvas>
 
 <script>
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
+    const gCanvas = document.getElementById("game-canvas");
+    const bCanvas = document.getElementById("bg-canvas");
+    const gctx = gCanvas.getContext("2d");
+    const bctx = bCanvas.getContext("2d");
 
-let nodes=[], path=[], dragging=false;
-let credits=0, combo=1, stability=100;
+    const I18N = {
+        en: { 
+            title: "NEURAL OVERLORD", intro: "Memory banks localized. 500 sectors detected.", 
+            rules: "1. [DRAG] to bridge nodes.\n2. [RELEASE] (4+ nodes) to extract.\n3. Lifting early drains stability.\n4. Progress auto-cached in neural link.",
+            btn: "RESUME UPLINK", hp: "STABILITY", cr: "CREDITS", sc: "SECTOR", aug: "AUGMENTATIONS", feed: "TERMINAL_FEED", up1: "SIGNAL REINFORCEMENT", up2: "EXTRACTION EFFICIENCY", log_save: "> PROGRESS SYNCED TO CORE.", log_fail: "> FAILURE: SIGNAL INTERRUPTED.", log_win: "> SUCCESS: DATA EXTRACTED."
+        },
+        zh: { 
+            title: "神經霸主", intro: "內存庫已定位。檢測到 500 個扇區。", 
+            rules: "1. [拖動] 連接數據節點。\n2. [釋放] (4個以上) 以提取數據。\n3. 過早中斷會損害穩定度。\n4. 進度自動緩存於神經連接中。",
+            btn: "恢復鏈接", hp: "穩定度", cr: "信用點", sc: "扇區", aug: "強化系統", feed: "終端反饋", up1: "信號強化", up2: "提取效率", log_save: "> 進度已同步至核心。", log_fail: "> 錯誤：信號中斷。", log_win: "> 成功：數據已提取。"
+        },
+        th: { 
+            title: "เจ้าแห่งประสาท", intro: "ระบุตำแหน่งหน่วยความจำแล้ว พบ 500 เซกเตอร์", 
+            rules: "1. [ลาก] เพื่อเชื่อมต่อโหนด\n2. [ปล่อย] (4 โหนดขึ้นไป) เพื่อสกัดข้อมูล\n3. การหยุดกลางคันทำให้ความเสถียรลดลง\n4. ความคืบหน้าจะบันทึกอัตโนมัติ",
+            btn: "กู้คืนการเชื่อมต่อ", hp: "ความเสถียร", cr: "เครดิต", sc: "เซกเตอร์", aug: "การเพิ่มประสิทธิภาพ", feed: "ข้อมูลเทอร์มินัล", up1: "การเสริมสัญญาณ", up2: "ประสิทธิภาพการสกัด", log_save: "> ซิงค์ข้อมูลความคืบหน้าแล้ว", log_fail: "> ล้มเหลว: สัญญาณขาดหาย", log_win: "> สำเร็จ: สกัดข้อมูลแล้ว"
+        }
+    };
 
-const SIZE=6;
+    let state = {
+        credits: 0, stability: 100, maxStability: 100, comboMod: 0.1, cameraY: 0, lang: 'en'
+    };
 
-function resize(){
-canvas.width=innerWidth;
-canvas.height=innerHeight;
-}
-window.onresize=resize;
-resize();
+    function saveGame() {
+        localStorage.setItem('overlord_save', JSON.stringify(state));
+        document.getElementById("save-tag").style.display = "inline";
+        setTimeout(() => document.getElementById("save-tag").style.display = "none", 1000);
+    }
 
-/* CREATE GRID WITH GUARANTEED SOLUTION */
-function init(){
-nodes=[]; path=[];
-stability=100;
+    function loadGame() {
+        const saved = localStorage.getItem('overlord_save');
+        if (saved) state = { ...state, ...JSON.parse(saved) };
+        document.getElementById("lang-select").value = state.lang;
+        updateUI();
+        refreshText();
+    }
 
-let solution=[];
-for(let i=0;i<SIZE;i++){
-solution.push({r:i,c:i});
-}
+    function hardReset() {
+        if(confirm("WIPE ALL DATA?")) { localStorage.clear(); location.reload(); }
+    }
 
-for(let r=0;r<SIZE;r++){
-for(let c=0;c<SIZE;c++){
+    let nodes = [], path = [], stars = [];
+    let dragging = false, glitch = 0;
 
-let isPath = solution.find(p=>p.r==r&&p.c==c);
+    function init() {
+        resize();
+        nodes = [];
+        const rows = 500, cols = 8;
+        const stepX = gCanvas.width / (cols + 1);
+        const stepY = 110;
+        for(let r=0; r<rows; r++) {
+            for(let c=0; c<cols; c++) {
+                nodes.push({ r, c, x: (c+1)*stepX, y: (r+1)*stepY, type: Math.random() > 0.95 ? 1 : 0 });
+            }
+        }
+        stars = Array.from({length: 100}, () => ({ x: Math.random()*bCanvas.width, y: Math.random()*bCanvas.height, v: Math.random()*0.4 }));
+    }
 
-nodes.push({
-r,c,
-x:(c+1)*(canvas.width/(SIZE+1)),
-y:(r+1)*(canvas.height/(SIZE+1)),
-type: isPath ? "PATH" : "FAKE",
-active:false
-});
-}
-}
-}
+    function resize() {
+        const v = document.getElementById("viewport");
+        gCanvas.width = v.clientWidth; gCanvas.height = v.clientHeight;
+        bCanvas.width = window.innerWidth; bCanvas.height = window.innerHeight;
+    }
 
-/* INPUT */
-canvas.onmousedown=e=>{
-dragging=true;
-path=[];
-handle(e);
-};
-canvas.onmousemove=e=>{
-if(dragging) handle(e);
-};
-canvas.onmouseup=()=>dragging=false;
+    gCanvas.onmousedown = e => { dragging = true; path = []; handleIn(e); };
+    gCanvas.onmousemove = e => { if(dragging) handleIn(e); };
+    gCanvas.onmouseup = () => {
+        if(!dragging) return;
+        dragging = false;
+        if(path.length >= 4) {
+            let gain = Math.floor(path.length * 25 * (1 + state.comboMod));
+            state.credits += gain;
+            addLog(I18N[state.lang].log_win + ` +${gain} CR`);
+            saveGame();
+        } else if (path.length > 0) {
+            state.stability -= 10;
+            glitch = 10;
+            addLog(I18N[state.lang].log_fail, true);
+        }
+        nodes.forEach(n => n.active = false);
+        path = [];
+        updateUI();
+    };
 
-function handle(e){
-const rect=canvas.getBoundingClientRect();
-const x=e.clientX-rect.left;
-const y=e.clientY-rect.top;
+    function handleIn(e) {
+        const rect = gCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top + state.cameraY;
+        nodes.forEach(n => {
+            if (Math.abs(n.y - y) > 60) return;
+            if (Math.hypot(n.x - x, n.y - y) < 25 && !path.includes(n)) {
+                if (path.length > 0) {
+                    let last = path[path.length-1];
+                    if (Math.abs(last.r - n.r) + Math.abs(last.c - n.c) > 1) return;
+                }
+                path.push(n);
+                n.active = true;
+                if (n.y - state.cameraY > gCanvas.height * 0.75) state.cameraY += 110;
+                if (n.y - state.cameraY < gCanvas.height * 0.2 && state.cameraY > 0) state.cameraY -= 110;
+            }
+        });
+    }
 
-nodes.forEach(n=>{
-if(Math.hypot(n.x-x,n.y-y)<30){
-if(!path.includes(n)){
-path.push(n);
-n.active=true;
-}
-}
-});
-}
+    function upgrade(type) {
+        if(type === 'hp' && state.credits >= 500) {
+            state.credits -= 500; state.maxStability += 50; state.stability = state.maxStability;
+        } else if(type === 'cb' && state.credits >= 750) {
+            state.credits -= 750; state.comboMod += 0.2;
+        }
+        saveGame(); updateUI();
+    }
 
-/* GAME LOGIC */
-function update(){
-if(path.length>1){
-for(let i=1;i<path.length;i++){
-let a=path[i-1], b=path[i];
-if(Math.abs(a.r-b.r)+Math.abs(a.c-b.c)>1){
-fail();
-return;
-}
-}
-}
-}
+    function updateUI() {
+        document.getElementById("hp").innerText = state.stability;
+        document.getElementById("cr").innerText = state.credits;
+        document.getElementById("sc").innerText = Math.floor(state.cameraY / 1000) + 1;
+        document.getElementById("hp-bar").style.width = (state.stability / state.maxStability * 100) + "%";
+        document.getElementById("cb-bar").style.width = (state.comboMod * 50) + "%";
+        document.getElementById("up-hp").disabled = state.credits < 500;
+        document.getElementById("up-cb").disabled = state.credits < 750;
+        if(state.stability <= 0) { alert("SIGNAL LOST"); state.stability = state.maxStability; saveGame(); updateUI(); }
+    }
 
-function fail(){
-stability-=5;
-combo=1;
-path=[];
+    function addLog(msg, warn = false) {
+        const f = document.getElementById("logs");
+        const d = document.createElement("div");
+        d.style.color = warn ? "var(--warn)" : "inherit";
+        d.innerText = msg;
+        f.prepend(d);
+        if(f.children.length > 15) f.lastChild.remove();
+    }
 
-if(stability<=0){
-credits=0;
-init();
-}
-}
+    function changeLang(l) { state.lang = l; refreshText(); saveGame(); }
 
-function success(){
-let score = Math.floor(path.length*10*combo);
-credits+=score;
-combo+=0.5;
-init();
-}
+    function refreshText() {
+        const d = I18N[state.lang];
+        document.getElementById("t-title").innerText = d.title;
+        document.getElementById("t-desc").innerText = d.intro + "\n\n" + d.rules;
+        document.getElementById("t-btn").innerText = d.btn;
+        document.getElementById("l-hp-text").innerText = d.hp;
+        document.getElementById("l-cr-text").innerText = d.cr;
+        document.getElementById("l-sc-text").innerText = d.sc;
+        document.getElementById("l-aug").innerText = d.aug;
+        document.getElementById("l-feed").innerText = d.feed;
+        document.getElementById("l-up1").innerText = d.up1;
+        document.getElementById("l-up2").innerText = d.up2;
+    }
 
-/* DRAW */
-function draw(){
-ctx.fillStyle="#020205";
-ctx.fillRect(0,0,canvas.width,canvas.height);
+    function closeModal() { document.getElementById("modal").style.display = "none"; }
 
-nodes.forEach(n=>{
-ctx.beginPath();
-ctx.arc(n.x,n.y,20,0,Math.PI*2);
-ctx.strokeStyle = n.active ? "#bc13fe" : "#222";
-ctx.stroke();
-});
+    function draw() {
+        bctx.fillStyle = "#020205"; bctx.fillRect(0,0,bCanvas.width, bCanvas.height);
+        bctx.fillStyle = "#00d9ff22";
+        stars.forEach(s => { s.y += s.v; if(s.y > bCanvas.height) s.y = 0; bctx.fillRect(s.x, s.y, 2, 2); });
 
-if(path.length>1){
-ctx.beginPath();
-ctx.moveTo(path[0].x,path[0].y);
-for(let p of path){
-ctx.lineTo(p.x,p.y);
-}
-ctx.strokeStyle="#00d9ff";
-ctx.lineWidth=3;
-ctx.stroke();
-}
+        gctx.fillStyle = glitch > 0 ? "rgba(255,0,85,0.1)" : "#020205";
+        if(glitch > 0) glitch--;
+        gctx.fillRect(0,0,gCanvas.width, gCanvas.height);
 
-update();
+        gctx.save();
+        gctx.translate(0, -state.cameraY);
+        nodes.forEach(n => {
+            if (n.y < state.cameraY - 50 || n.y > state.cameraY + gCanvas.height + 50) return;
+            gctx.beginPath(); gctx.arc(n.x, n.y, n.type === 1 ? 10 : 5, 0, Math.PI*2);
+            gctx.strokeStyle = n.active ? "#fff" : (n.type === 1 ? "var(--warn)" : "rgba(0, 217, 255, 0.2)");
+            gctx.lineWidth = n.active ? 3 : 1; gctx.stroke();
+            if(n.active) { gctx.fillStyle = "#fff"; gctx.fill(); }
+        });
+        if(path.length > 1) {
+            gctx.beginPath(); gctx.moveTo(path[0].x, path[0].y);
+            path.forEach(p => gctx.lineTo(p.x, p.y));
+            gctx.strokeStyle = "var(--neon)"; gctx.lineWidth = 3; gctx.stroke();
+        }
+        gctx.restore();
+        requestAnimationFrame(draw);
+    }
 
-if(path.length>5){
-success();
-path=[];
-}
-
-document.getElementById("hp").innerText=stability;
-document.getElementById("cr").innerText=credits;
-document.getElementById("cb").innerText=combo.toFixed(1);
-
-requestAnimationFrame(draw);
-}
-
-/* TUTORIAL */
-let step=0;
-const steps=[
-"Drag across nodes.",
-"Stay connected (no jumping).",
-"Longer paths = more credits.",
-"Mistakes reduce stability.",
-"Chain combos for big score."
-];
-
-function next(){
-step++;
-if(step>=steps.length){
-document.getElementById("tutorial").style.display="none";
-return;
-}
-document.getElementById("t").innerText=steps[step];
-}
-document.getElementById("t").innerText=steps[0];
-
-init();
-draw();
+    window.onresize = resize;
+    loadGame();
+    init();
+    draw();
 </script>
-
 </body>
 </html>
