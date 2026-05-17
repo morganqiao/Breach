@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>BREACH: OVERLORD // ENHANCED EDITION</title>
+    <title>BREACH: OVERLORD // 3D ULTIMATE EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;700&family=Noto+Sans+TC:wght@500&family=Noto+Sans+Thai:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,328 +13,141 @@
             --gold: #ffd700;
             --purple: #b44dff;
             --green: #00ff88;
+            --orange: #ff8800;
             --glow: rgba(0, 217, 255, 0.4);
             --warn-glow: rgba(255, 0, 85, 0.4);
             --gold-glow: rgba(255, 215, 0, 0.4);
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body, html {
-            margin: 0;
-            padding: 0;
-            background: var(--dark);
-            color: var(--neon);
+            margin: 0; padding: 0; background: var(--dark); color: var(--neon);
             font-family: 'JetBrains Mono', 'Noto Sans TC', 'Noto Sans Thai', monospace;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            overflow: hidden; height: 100vh; width: 100vw;
+            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
         }
 
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            opacity: 0.3;
-        }
+        #bg-canvas { position: fixed; inset: 0; z-index: 1; opacity: 0.3; }
 
         #os-container {
-            position: relative;
-            display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            grid-template-rows: 70px 1fr 180px;
-            height: 100vh;
-            z-index: 10;
-            border: 2px solid rgba(0, 217, 255, 0.1);
-            box-sizing: border-box;
+            position: relative; display: grid;
+            grid-template-columns: 340px 1fr 340px;
+            grid-template-rows: 70px 1fr 200px;
+            height: 100vh; z-index: 10;
+            border: 2px solid rgba(0, 217, 255, 0.1); box-sizing: border-box;
         }
 
         .panel {
-            background: rgba(0, 5, 10, 0.95);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-            backdrop-filter: blur(15px);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
+            background: rgba(0, 5, 10, 0.95); border: 1px solid rgba(0, 217, 255, 0.2);
+            backdrop-filter: blur(15px); padding: 15px;
+            display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
         }
         
-        #viewport {
-            position: relative;
-            overflow: hidden;
-            background: radial-gradient(circle at center, #0a0a15 0%, #020205 100%);
-            grid-row: 2;
-        }
-        
-        #game-canvas {
-            display: block;
-            cursor: crosshair;
-            width: 100%;
-            height: 100%;
-        }
+        #viewport { position: relative; overflow: hidden; grid-row: 2; background: radial-gradient(circle at center, #0a0a15 0%, #020205 100%); }
+        #game-canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
 
         #header {
-            grid-column: 1 / -1;
-            height: 70px;
-            background: rgba(0, 217, 255, 0.05);
-            border-bottom: 1px solid var(--neon);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            font-family: 'Orbitron';
-            z-index: 100;
+            grid-column: 1 / -1; height: 70px;
+            background: rgba(0, 217, 255, 0.05); border-bottom: 1px solid var(--neon);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; font-family: 'Orbitron'; z-index: 100;
         }
 
         #bottom-panel {
-            grid-column: 1 / -1;
-            grid-row: 3;
-            height: 180px;
-            background: rgba(0, 5, 10, 0.95);
-            border-top: 1px solid rgba(0, 217, 255, 0.2);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            padding: 15px;
-            overflow: hidden;
+            grid-column: 1 / -1; grid-row: 3; height: 200px;
+            background: rgba(0, 5, 10, 0.95); border-top: 1px solid rgba(0, 217, 255, 0.2);
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px; padding: 15px; overflow: hidden;
         }
 
+        .bottom-section {
+            background: rgba(0, 217, 255, 0.03); border: 1px solid rgba(0, 217, 255, 0.15);
+            padding: 10px; display: flex; flex-direction: column; gap: 5px;
+        }
+
+        h2 {
+            font-size: 11px; margin: 0; color: #fff; letter-spacing: 2px;
+            border-left: 3px solid var(--neon); padding-left: 10px;
+        }
+        
+        .val { display: block; font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 0 10px var(--glow); }
+        
+        .btn {
+            background: rgba(0, 217, 255, 0.05); border: 1px solid var(--neon);
+            color: var(--neon); padding: 10px; cursor: pointer;
+            font-family: 'Orbitron'; font-size: 9px; transition: 0.3s;
+            text-align: center; letter-spacing: 1px;
+        }
+        
+        .btn:hover:not(:disabled) {
+            background: var(--neon); color: var(--dark);
+            font-weight: 900; box-shadow: 0 0 20px var(--glow);
+        }
+        
+        .btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        
+        .btn.gold { border-color: var(--gold); color: var(--gold); }
+        .btn.gold:hover:not(:disabled) { background: var(--gold); color: var(--dark); box-shadow: 0 0 20px var(--gold-glow); }
+        
+        .btn.warn { border-color: var(--warn); color: var(--warn); }
+        .btn.warn:hover:not(:disabled) { background: var(--warn); color: #fff; box-shadow: 0 0 20px var(--warn-glow); }
+        
+        .btn.purple { border-color: var(--purple); color: var(--purple); }
+        .btn.purple:hover:not(:disabled) { background: var(--purple); color: #fff; box-shadow: 0 0 20px rgba(180, 77, 255, 0.4); }
+        
+        .btn.orange { border-color: var(--orange); color: var(--orange); }
+        .btn.orange:hover:not(:disabled) { background: var(--orange); color: #fff; box-shadow: 0 0 20px rgba(255, 136, 0, 0.4); }
+
         .skill-slot {
-            background: rgba(0, 217, 255, 0.03);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            transition: 0.3s;
-            cursor: pointer;
-            position: relative;
+            background: rgba(0, 217, 255, 0.03); border: 1px solid rgba(0, 217, 255, 0.2);
+            padding: 8px; display: flex; flex-direction: column; gap: 3px;
+            transition: 0.3s; cursor: pointer; position: relative; font-size: 9px;
         }
         
-        .skill-slot:hover:not(.locked) {
-            border-color: var(--neon);
-            box-shadow: 0 0 15px var(--glow);
-        }
-        
-        .skill-slot.locked {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        .skill-slot.activated {
-            border-color: var(--gold) !important;
-            box-shadow: 0 0 20px var(--gold-glow) !important;
-            animation: pulseSkill 1s infinite;
-        }
+        .skill-slot:hover:not(.locked) { border-color: var(--neon); box-shadow: 0 0 15px var(--glow); }
+        .skill-slot.locked { opacity: 0.3; cursor: not-allowed; }
+        .skill-slot.activated { border-color: var(--gold) !important; box-shadow: 0 0 20px var(--gold-glow) !important; animation: pulseSkill 1s infinite; }
         
         @keyframes pulseSkill {
             0%, 100% { box-shadow: 0 0 10px var(--gold-glow); }
             50% { box-shadow: 0 0 30px var(--gold-glow); }
         }
 
-        h2 {
-            font-size: 11px;
-            margin: 0;
-            color: #fff;
-            letter-spacing: 2px;
-            border-left: 3px solid var(--neon);
-            padding-left: 10px;
-        }
-        
-        .stat-item {
-            background: rgba(0, 217, 255, 0.03);
-            padding: 12px;
-            border: 1px solid rgba(0, 217, 255, 0.1);
-        }
-        
-        .stat-label {
-            font-size: 9px;
-            color: rgba(0, 217, 255, 0.7);
-            margin-bottom: 5px;
-            display: block;
-        }
-        
-        .val {
-            display: block;
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 0 10px var(--glow);
-        }
-        
-        .header-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-        
-        .header-label {
-            font-size: 7px;
-            letter-spacing: 1px;
-            opacity: 0.7;
-        }
-        
-        .btn {
-            background: rgba(0, 217, 255, 0.05);
-            border: 1px solid var(--neon);
-            color: var(--neon);
-            padding: 10px;
-            cursor: pointer;
-            font-family: 'Orbitron';
-            font-size: 9px;
-            transition: 0.3s;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-        
-        .btn:hover:not(:disabled) {
-            background: var(--neon);
-            color: var(--dark);
-            font-weight: 900;
-            box-shadow: 0 0 20px var(--glow);
-        }
-        
-        .btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-        
-        .btn:disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-        }
-        
-        .btn.gold {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-        
-        .btn.gold:hover:not(:disabled) {
-            background: var(--gold);
-            color: var(--dark);
-            box-shadow: 0 0 20px var(--gold-glow);
-        }
-        
-        .btn.warn {
-            border-color: var(--warn);
-            color: var(--warn);
-        }
-        
-        .btn.warn:hover:not(:disabled) {
-            background: var(--warn);
-            color: #fff;
-            box-shadow: 0 0 20px var(--warn-glow);
-        }
-
         #modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.98);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
         }
         
         #terminal-box {
-            width: 650px;
-            max-width: 90vw;
-            max-height: 80vh;
-            border: 1px solid var(--neon);
-            padding: 40px;
-            background: #00050a;
+            width: 700px; max-width: 90vw; max-height: 85vh;
+            border: 1px solid var(--neon); padding: 40px; background: #00050a;
             box-shadow: 0 0 100px rgba(0, 217, 255, 0.1);
-            animation: fadeIn 0.5s ease;
-            overflow-y: auto;
+            animation: fadeIn 0.5s ease; overflow-y: auto;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
-        .fill {
-            height: 100%;
-            background: var(--neon);
-            transition: 0.3s;
-            box-shadow: 0 0 10px var(--neon);
-        }
-        
-        .progress-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.05);
-            margin-top: 8px;
-            overflow: hidden;
-        }
+        .fill { height: 100%; background: var(--neon); transition: 0.3s; box-shadow: 0 0 10px var(--neon); }
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.05); margin-top: 5px; overflow: hidden; }
 
-        #logs {
-            font-size: 9px;
-            color: rgba(0, 217, 255, 0.4);
-            height: 100%;
-            overflow-y: auto;
-            line-height: 1.6;
-        }
+        #logs { font-size: 8px; color: rgba(0, 217, 255, 0.4); height: 100%; overflow-y: auto; line-height: 1.5; }
         
-        .log-entry {
-            animation: slideIn 0.3s ease;
-            padding: 2px 0;
-            border-bottom: 1px solid rgba(0, 217, 255, 0.03);
-        }
+        .log-entry { animation: slideIn 0.3s ease; padding: 1px 0; border-bottom: 1px solid rgba(0, 217, 255, 0.03); }
         
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(10px); }
             to { opacity: 1; transform: translateX(0); }
         }
         
-        .save-indicator {
-            font-size: 9px;
-            color: var(--warn);
-            display: none;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-        
-        .warn-text {
-            color: var(--warn) !important;
-            border-color: var(--warn) !important;
-        }
-        
-        .combo-display {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 48px;
-            font-family: 'Orbitron';
-            color: var(--gold);
-            text-shadow: 0 0 30px var(--gold-glow);
-            pointer-events: none;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        
         .achievement-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid var(--gold);
-            padding: 15px 25px;
-            color: var(--gold);
-            font-family: 'Orbitron';
-            z-index: 500;
-            animation: slideInRight 0.5s ease, fadeOut 2s 3s ease forwards;
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(0, 0, 0, 0.9); border: 2px solid var(--gold);
+            padding: 15px 25px; color: var(--gold); font-family: 'Orbitron';
+            z-index: 500; animation: slideInRight 0.5s ease, fadeOut 2s 3s ease forwards;
         }
         
         @keyframes slideInRight {
@@ -346,53 +159,75 @@
             to { opacity: 0; transform: translateY(-20px); }
         }
         
+        .combo-display {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 48px; font-family: 'Orbitron'; color: var(--gold);
+            text-shadow: 0 0 30px var(--gold-glow); pointer-events: none;
+            opacity: 0; transition: 0.3s;
+        }
+        
         .boss-health {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--warn);
-            display: none;
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 8px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--warn); display: none;
         }
         
-        .boss-health-fill {
-            height: 100%;
-            background: var(--warn);
-            transition: 0.3s;
-            box-shadow: 0 0 20px var(--warn-glow);
+        .boss-health-fill { height: 100%; background: var(--warn); transition: 0.3s; box-shadow: 0 0 20px var(--warn-glow); }
+        
+        .tutorial-highlight {
+            position: absolute; border: 2px solid var(--gold);
+            box-shadow: 0 0 30px var(--gold-glow); pointer-events: none;
+            z-index: 200; animation: pulseHighlight 1s infinite;
         }
         
-        .timed-indicator {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-family: 'Orbitron';
-            font-size: 24px;
-            color: var(--neon);
-            display: none;
+        @keyframes pulseHighlight {
+            0%, 100% { box-shadow: 0 0 10px var(--gold-glow); }
+            50% { box-shadow: 0 0 40px var(--gold-glow); }
         }
+        
+        .tutorial-text {
+            position: absolute; color: #fff; font-size: 14px; z-index: 201;
+            background: rgba(0,0,0,0.9); padding: 10px 20px; border: 1px solid var(--gold);
+            font-family: 'Orbitron'; pointer-events: none;
+        }
+        
+        .lottery-slot {
+            display: inline-block; width: 60px; height: 80px;
+            background: rgba(0,0,0,0.5); border: 2px solid var(--neon);
+            text-align: center; line-height: 80px; font-size: 40px;
+            margin: 0 10px; animation: slotSpin 0.1s infinite linear;
+        }
+        
+        @keyframes slotSpin {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(360deg); }
+        }
+        
+        .card-3d {
+            transform-style: preserve-3d; transition: transform 0.5s;
+            display: inline-block; cursor: pointer;
+        }
+        
+        .card-3d:hover { transform: rotateY(10deg) rotateX(5deg) scale(1.05); }
+        
+        .shop-item {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px; background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,217,255,0.2); margin-bottom: 10px;
+            transition: 0.3s; cursor: pointer;
+        }
+        
+        .shop-item:hover {
+            border-color: var(--neon); box-shadow: 0 0 20px var(--glow);
+            transform: translateX(5px);
+        }
+        
+        .shop-item-icon { font-size: 40px; min-width: 60px; text-align: center; }
         
         @media (max-width: 768px) {
-            #os-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: 70px 1fr 150px;
-            }
-            .panel {
-                display: none;
-            }
-            #bottom-panel {
-                grid-template-columns: 1fr 1fr;
-            }
-            #header {
-                font-size: 10px;
-                padding: 0 10px;
-            }
-            .val {
-                font-size: 14px;
-            }
+            #os-container { grid-template-columns: 1fr; grid-template-rows: 60px 1fr 150px; }
+            .panel { display: none; }
+            #bottom-panel { grid-template-columns: 1fr 1fr 1fr; }
         }
     </style>
 </head>
@@ -402,31 +237,23 @@
 
 <div id="os-container">
     <header id="header">
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <span style="color: #0f0;">●</span>
-            <span id="l-stat">CORE_LINK: ACTIVE</span>
-            <span id="save-tag" class="save-indicator">● SYNCING</span>
+            <span id="l-stat" style="font-size: 10px;">CORE_LINK: ACTIVE</span>
+            <span id="save-tag" style="font-size: 9px; color: var(--warn); display: none; animation: blink 1s infinite;">● SYNCING</span>
             <span id="mode-indicator" style="font-size: 8px; color: var(--warn); display: none;">BOSS FIGHT</span>
+            <button class="btn" onclick="showTutorial()" style="font-size: 8px; padding: 5px 10px;">📖 HELP</button>
+            <button class="btn gold" onclick="openLottery()" style="font-size: 8px; padding: 5px 10px;">🎰 LOTTERY</button>
+            <button class="btn purple" onclick="openShop()" style="font-size: 8px; padding: 5px 10px;">🛒 SHOP</button>
         </div>
-        <div style="display:flex; gap: 30px;">
-            <div class="header-item">
-                <span class="header-label" id="l-hp-text">STABILITY</span>
-                <span id="hp" class="val">100</span>
-            </div>
-            <div class="header-item">
-                <span class="header-label" id="l-cr-text">CREDITS</span>
-                <span id="cr" class="val">0</span>
-            </div>
-            <div class="header-item">
-                <span class="header-label" id="l-sc-text">SECTOR</span>
-                <span id="sc" class="val">1</span>
-            </div>
-            <div class="header-item">
-                <span class="header-label">COMBO</span>
-                <span id="combo" class="val" style="color: var(--gold);">x1</span>
-            </div>
+        <div style="display:flex; gap: 25px;">
+            <div class="header-item"><span class="header-label" id="l-hp-text" style="font-size: 7px;">STABILITY</span><span id="hp" class="val" style="font-size: 16px;">100</span></div>
+            <div class="header-item"><span class="header-label" id="l-cr-text" style="font-size: 7px;">CREDITS</span><span id="cr" class="val" style="font-size: 16px;">0</span></div>
+            <div class="header-item"><span class="header-label" id="l-sc-text" style="font-size: 7px;">SECTOR</span><span id="sc" class="val" style="font-size: 16px;">1</span></div>
+            <div class="header-item"><span class="header-label" style="font-size: 7px;">COMBO</span><span id="combo" class="val" style="font-size: 16px; color: var(--gold);">x1</span></div>
+            <div class="header-item"><span class="header-label" style="font-size: 7px;">💎</span><span id="gems" class="val" style="font-size: 16px; color: var(--purple);">0</span></div>
         </div>
-        <select id="lang-select" onchange="changeLang(this.value)" style="background:#000; color:var(--neon); border:1px solid var(--neon); font-family:inherit; padding: 5px; cursor: pointer;">
+        <select id="lang-select" onchange="changeLang(this.value)" style="background:#000; color:var(--neon); border:1px solid var(--neon); font-family:inherit; padding: 5px; cursor: pointer; font-size: 10px;">
             <option value="en">EN-US</option>
             <option value="zh">ZH-TW</option>
             <option value="th">TH-TH</option>
@@ -434,75 +261,246 @@
     </header>
 
     <aside class="panel" style="grid-row: 2;">
-        <h2 id="l-aug">AUGMENTATIONS</h2>
-        <div class="stat-item">
-            <span class="stat-label" id="l-up1">SIGNAL REINFORCEMENT</span>
+        <h2 id="l-aug" style="font-size: 10px;">AUGMENTATIONS</h2>
+        <div class="stat-item" style="padding: 10px;">
+            <span class="stat-label" id="l-up1" style="font-size: 8px;">SIGNAL REINFORCEMENT</span>
             <div class="progress-bar"><div id="hp-bar" class="fill" style="width: 50%;"></div></div>
-            <button class="btn" onclick="upgrade('hp')" id="up-hp" style="width:100%; margin-top:10px;">UPGRADE [500 CR]</button>
+            <button class="btn" onclick="upgrade('hp')" id="up-hp" style="width:100%; margin-top:8px; font-size: 8px;">UPGRADE [500 CR]</button>
         </div>
-        <div class="stat-item">
-            <span class="stat-label" id="l-up2">EXTRACTION EFFICIENCY</span>
+        <div class="stat-item" style="padding: 10px;">
+            <span class="stat-label" id="l-up2" style="font-size: 8px;">EXTRACTION EFFICIENCY</span>
             <div class="progress-bar"><div id="cb-bar" class="fill" style="width: 10%;"></div></div>
-            <button class="btn" onclick="upgrade('cb')" id="up-cb" style="width:100%; margin-top:10px;">UPGRADE [750 CR]</button>
+            <button class="btn" onclick="upgrade('cb')" id="up-cb" style="width:100%; margin-top:8px; font-size: 8px;">UPGRADE [750 CR]</button>
         </div>
-        <div class="stat-item">
-            <span class="stat-label">NODE DENSITY</span>
+        <div class="stat-item" style="padding: 10px;">
+            <span class="stat-label" style="font-size: 8px;">NODE DENSITY</span>
             <div class="progress-bar"><div id="dn-bar" class="fill" style="width: 5%;"></div></div>
-            <button class="btn" onclick="upgrade('density')" id="up-dn" style="width:100%; margin-top:10px;">UPGRADE [1000 CR]</button>
+            <button class="btn" onclick="upgrade('density')" id="up-dn" style="width:100%; margin-top:8px; font-size: 8px;">UPGRADE [1000 CR]</button>
         </div>
-        <h2 id="l-items" style="margin-top: 10px; border-left-color: var(--gold);">POWER-UPS</h2>
-        <div id="items-container" style="display: flex; flex-direction: column; gap: 5px;">
-            <div style="font-size: 9px; color: rgba(0, 217, 255, 0.4);">Collect power-ups in game</div>
+        <h2 id="l-items" style="font-size: 10px; margin-top: 10px; border-left-color: var(--gold);">POWER-UPS</h2>
+        <div id="items-container" style="display: flex; flex-direction: column; gap: 3px; font-size: 9px;">
+            <div style="color: rgba(0, 217, 255, 0.4);">Collect power-ups in game</div>
         </div>
+        <h2 style="font-size: 10px; margin-top: 10px; border-left-color: var(--purple);">ACHIEVEMENTS</h2>
+        <div id="achievements-list" style="font-size: 8px; color: var(--gold); max-height: 80px; overflow-y: auto;"></div>
         <div style="flex:1"></div>
-        <button class="btn warn" onclick="hardReset()" style="font-size: 8px; padding: 8px;">⚠ WIPE ALL DATA</button>
+        <button class="btn warn" onclick="hardReset()" style="font-size: 7px; padding: 6px;">⚠ WIPE ALL DATA</button>
     </aside>
 
     <main id="viewport" style="grid-row: 2;">
         <canvas id="game-canvas"></canvas>
         <div class="combo-display" id="combo-popup"></div>
-        <div class="boss-health" id="boss-health-bar">
-            <div class="boss-health-fill" id="boss-health-fill" style="width: 100%;"></div>
-        </div>
-        <div class="timed-indicator" id="timed-indicator">60</div>
+        <div class="boss-health" id="boss-health-bar"><div class="boss-health-fill" id="boss-health-fill" style="width: 100%;"></div></div>
     </main>
 
     <aside class="panel" style="grid-row: 2;">
-        <h2 id="l-feed">TERMINAL_FEED</h2>
+        <h2 id="l-feed" style="font-size: 10px;">TERMINAL_FEED</h2>
         <div id="logs"></div>
-        <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,217,255,0.1);">
-            <div style="font-size: 8px; color: rgba(0,217,255,0.5); margin-bottom: 5px;" id="l-ach">ACHIEVEMENTS</div>
-            <div id="achievements-list" style="font-size: 8px; color: var(--gold); max-height: 100px; overflow-y: auto;"></div>
-        </div>
     </aside>
 
     <div id="bottom-panel">
-        <div class="skill-slot" id="skill-time" onclick="activateSkill('time')">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">⏱ TIME SLOW</span>
-            <span style="font-size: 8px; color: #666;">Slow time by 50%</span>
-            <span style="font-size: 7px; color: var(--green);">COST: 200 CR</span>
-            <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-time-cd"></div></div>
+        <div class="bottom-section">
+            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">🎮 SKILLS</span>
+            <div class="skill-slot" id="skill-time" onclick="activateSkill('time')" style="font-size: 8px;">
+                ⏱ TIME SLOW<br><span style="color: #666;">50% speed</span>
+                <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-time-cd"></div></div>
+            </div>
+            <div class="skill-slot locked" id="skill-magnet" onclick="activateSkill('magnet')" style="font-size: 8px;">
+                🧲 MAGNET<br><span style="color: #666;">Unlock: 50 nodes</span>
+                <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-magnet-cd"></div></div>
+            </div>
+            <div class="skill-slot locked" id="skill-lightning" onclick="activateSkill('lightning')" style="font-size: 8px;">
+                ⚡ LIGHTNING<br><span style="color: #666;">Unlock: 200 nodes</span>
+                <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-lightning-cd"></div></div>
+            </div>
         </div>
-        <div class="skill-slot locked" id="skill-magnet" onclick="activateSkill('magnet')">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">🧲 MAGNET</span>
-            <span style="font-size: 8px; color: #666;">Auto-attract nodes</span>
-            <span style="font-size: 7px; color: var(--green);">UNLOCK: 50 NODES</span>
-            <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-magnet-cd"></div></div>
+        <div class="bottom-section">
+            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">🎯 CONTROLS</span>
+            <div style="font-size: 8px; color: rgba(0,217,255,0.7); line-height: 1.6;">
+                🖱 Drag: Connect nodes<br>
+                ⌨ ↑↓: Scroll view<br>
+                ⌨ 1-3: Activate skills<br>
+                ⌨ T: Timed mode<br>
+                ⌨ Ctrl+S: Save
+            </div>
         </div>
-        <div class="skill-slot locked" id="skill-lightning" onclick="activateSkill('lightning')">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">⚡ LIGHTNING</span>
-            <span style="font-size: 8px; color: #666;">Diagonal connections</span>
-            <span style="font-size: 7px; color: var(--green);">UNLOCK: 200 NODES</span>
-            <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-lightning-cd"></div></div>
+        <div class="bottom-section">
+            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">📊 STATS</span>
+            <div style="font-size: 8px; color: rgba(0,217,255,0.7); line-height: 1.6;">
+                Nodes: <span id="stats-nodes">0</span><br>
+                Credits: <span id="stats-credits">0</span><br>
+                Max Combo: <span id="stats-combo">1</span><br>
+                Bosses: <span id="stats-bosses">0</span>
+            </div>
+        </div>
+        <div class="bottom-section">
+            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--gold);">🎰 LOTTERY</span>
+            <button class="btn gold" onclick="openLottery()" style="font-size: 8px; padding: 8px;">SPIN [100 CR]</button>
+            <div style="font-size: 7px; color: rgba(255,215,0,0.5);">Win credits, gems, items!</div>
+        </div>
+        <div class="bottom-section">
+            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--purple);">🛒 SHOP</span>
+            <button class="btn purple" onclick="openShop()" style="font-size: 8px; padding: 8px;">OPEN SHOP</button>
+            <div style="font-size: 7px; color: rgba(180,77,255,0.5);">Buy exclusive items!</div>
         </div>
     </div>
 </div>
 
-<div id="modal">
-    <div id="terminal-box">
-        <h1 id="t-title" style="font-family: 'Orbitron'; color: #fff; font-size: 28px;"></h1>
-        <p id="t-desc" style="white-space: pre-line; color: #888; font-size: 14px; line-height: 1.8;"></p>
-        <button class="btn" onclick="closeModal()" id="t-btn" style="float:right; font-size:14px; padding: 15px 40px; background: var(--neon); color: #000; font-weight: 900; margin-top: 20px;"></button>
+<!-- Tutorial Modal -->
+<div id="tutorial-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="width: 800px; max-width: 90vw; max-height: 85vh; overflow-y: auto; padding: 40px; border: 1px solid var(--gold); background: #00050a; box-shadow: 0 0 100px var(--gold-glow);">
+        <h1 style="font-family: 'Orbitron'; color: var(--gold); text-align: center; margin-bottom: 30px;">📖 HOW TO PLAY</h1>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="shop-item">
+                <div class="shop-item-icon">🖱️</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">1. DRAG TO CONNECT</h3>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Click and drag across adjacent nodes to form a chain. The longer the chain, the more credits you earn!</p>
+                </div>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-icon">🎯</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">2. RELEASE TO EXTRACT</h3>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Release with 4+ nodes connected to extract data. Fewer than 4 will damage your stability!</p>
+                </div>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-icon">❤️</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">3. SPECIAL RED NODES</h3>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Red nodes are worth 2x credits! Look for them and include them in your chains.</p>
+                </div>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-icon">⚡</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">4. SKILLS & POWER-UPS</h3>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Use skills from the bottom panel. Collect power-ups that appear when you extract data.</p>
+                </div>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-icon">👾</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">5. AVOID ENEMIES</h3>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Firewalls (red), Viruses (purple), and Trackers (gold) will damage you. Touch them to fight back!</p>
+                </div>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-icon">👑</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">6. BOSS FIGHTS</h3>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Every 50 sectors, a boss appears. Defeat it by connecting nodes near enemies. Win 1000 CR!</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <h3 style="color: var(--gold);">💰 ECONOMY GUIDE</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <div style="background: rgba(0,217,255,0.05); padding: 15px; border: 1px solid rgba(0,217,255,0.2);">
+                    <h4 style="color: var(--neon); margin: 0;">CREDITS (CR)</h4>
+                    <p style="color: #888; font-size: 11px; line-height: 1.5;">Earn by extracting data. Use for upgrades and lottery.</p>
+                </div>
+                <div style="background: rgba(180,77,255,0.05); padding: 15px; border: 1px solid rgba(180,77,255,0.2);">
+                    <h4 style="color: var(--purple); margin: 0;">GEMS (💎)</h4>
+                    <p style="color: #888; font-size: 11px; line-height: 1.5;">Rare currency from lottery and bosses. Use in the shop.</p>
+                </div>
+                <div style="background: rgba(255,215,0,0.05); padding: 15px; border: 1px solid rgba(255,215,0,0.2);">
+                    <h4 style="color: var(--gold); margin: 0;">ITEMS</h4>
+                    <p style="color: #888; font-size: 11px; line-height: 1.5;">Shields, double credits, repairs. Buy or win them!</p>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn gold" onclick="closeTutorial()" style="display: block; margin: 30px auto 0; padding: 15px 40px; font-size: 14px;">GOT IT! LET'S BREACH!</button>
+    </div>
+</div>
+
+<!-- Lottery Modal -->
+<div id="lottery-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="width: 600px; max-width: 90vw; padding: 40px; border: 1px solid var(--gold); background: #00050a; box-shadow: 0 0 150px var(--gold-glow); text-align: center;">
+        <h1 style="font-family: 'Orbitron'; color: var(--gold); margin-bottom: 20px;">🎰 NEURAL LOTTERY</h1>
+        <p style="color: #888; margin-bottom: 30px;">Spin to win credits, gems, and rare items!</p>
+        
+        <div id="lottery-slots" style="display: flex; justify-content: center; margin: 30px 0; font-size: 60px; gap: 20px;">
+            <div style="width: 80px; height: 100px; background: rgba(0,0,0,0.5); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;">❓</div>
+            <div style="width: 80px; height: 100px; background: rgba(0,0,0,0.5); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;">❓</div>
+            <div style="width: 80px; height: 100px; background: rgba(0,0,0,0.5); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;">❓</div>
+        </div>
+        
+        <div id="lottery-result" style="color: var(--gold); font-family: 'Orbitron'; font-size: 18px; margin: 20px 0; min-height: 30px;"></div>
+        
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn gold" onclick="spinLottery(1)" id="spin-1" style="padding: 15px 30px; font-size: 14px;">SPIN x1 [100 CR]</button>
+            <button class="btn gold" onclick="spinLottery(5)" id="spin-5" style="padding: 15px 30px; font-size: 14px;">SPIN x5 [450 CR]</button>
+            <button class="btn gold" onclick="spinLottery(10)" id="spin-10" style="padding: 15px 30px; font-size: 14px;">SPIN x10 [800 CR]</button>
+        </div>
+        
+        <button class="btn" onclick="closeLottery()" style="margin-top: 30px; padding: 10px 30px;">CLOSE</button>
+    </div>
+</div>
+
+<!-- Shop Modal -->
+<div id="shop-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="width: 700px; max-width: 90vw; max-height: 85vh; overflow-y: auto; padding: 40px; border: 1px solid var(--purple); background: #00050a; box-shadow: 0 0 100px rgba(180,77,255,0.3);">
+        <h1 style="font-family: 'Orbitron'; color: var(--purple); margin-bottom: 10px;">🛒 SHOP</h1>
+        <p style="color: #888; margin-bottom: 20px;">Spend your gems on exclusive items!</p>
+        
+        <div id="shop-items">
+            <div class="shop-item" onclick="buyItem('shield_pack')">
+                <div class="shop-item-icon">🛡️</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">Shield Pack (x3)</h3>
+                    <p style="color: #888; font-size: 12px;">Absorbs all damage 3 times.</p>
+                </div>
+                <button class="btn" style="margin-left: auto;">💎 5 GEMS</button>
+            </div>
+            
+            <div class="shop-item" onclick="buyItem('credit_boost')">
+                <div class="shop-item-icon">💰</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">Credit Boost</h3>
+                    <p style="color: #888; font-size: 12px;">+1000 Credits instantly.</p>
+                </div>
+                <button class="btn gold" style="margin-left: auto;">💎 10 GEMS</button>
+            </div>
+            
+            <div class="shop-item" onclick="buyItem('stability_restore')">
+                <div class="shop-item-icon">❤️</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">Full Stability Restore</h3>
+                    <p style="color: #888; font-size: 12px;">Restores stability to maximum.</p>
+                </div>
+                <button class="btn warn" style="margin-left: auto;">💎 15 GEMS</button>
+            </div>
+            
+            <div class="shop-item" onclick="buyItem('combo_multiplier')">
+                <div class="shop-item-icon">🔥</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">Combo Multiplier (24h)</h3>
+                    <p style="color: #888; font-size: 12px;">2x to all combo bonuses.</p>
+                </div>
+                <button class="btn orange" style="margin-left: auto;">💎 20 GEMS</button>
+            </div>
+            
+            <div class="shop-item" onclick="buyItem('rare_powerup')">
+                <div class="shop-item-icon">✨</div>
+                <div>
+                    <h3 style="color: #fff; margin: 0;">Mystery Power-Up</h3>
+                    <p style="color: #888; font-size: 12px;">Random rare item from the collection.</p>
+                </div>
+                <button class="btn purple" style="margin-left: auto;">💎 25 GEMS</button>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="closeShop()" style="margin-top: 20px; padding: 10px 30px; display: block; margin-left: auto; margin-right: auto;">CLOSE</button>
     </div>
 </div>
 
@@ -517,76 +515,108 @@
     const I18N = {
         en: {
             title: "NEURAL OVERLORD", intro: "Memory banks localized. 500 sectors detected.\nMultiple defense systems active.\nProceed with caution.",
-            rules: "1. [DRAG] to bridge data nodes.\n2. [RELEASE] (4+ nodes) to extract.\n3. Avoid firewalls and viruses.\n4. Collect power-ups for bonuses.\n5. Defeat bosses every 50 sectors.\n6. Skills available in bottom panel.",
-            btn: "INITIATE BREACH", hp: "STABILITY", cr: "CREDITS", sc: "SECTOR", aug: "AUGMENTATIONS", feed: "TERMINAL_FEED", up1: "SIGNAL REINFORCEMENT", up2: "EXTRACTION EFFICIENCY", log_save: "> PROGRESS SYNCED.", log_fail: "> FAILURE: SIGNAL INTERRUPTED.", log_win: "> SUCCESS: DATA EXTRACTED.", log_upgrade: "> AUGMENTATION INSTALLED.", log_warn: "> WARNING: Stability critical!", log_boss: "> ALERT: Firewall boss detected!", log_achievement: "> ACHIEVEMENT UNLOCKED!", l_items: "POWER-UPS", l_ach: "ACHIEVEMENTS"
+            rules: "1. [DRAG] to bridge data nodes (4+).\n2. Avoid enemies (red/purple/gold).\n3. Collect power-ups for bonuses.\n4. Defeat bosses every 50 sectors.\n5. Use skills, lottery, and shop!",
+            btn: "INITIATE BREACH", hp: "STABILITY", cr: "CREDITS", sc: "SECTOR",
+            aug: "AUGMENTATIONS", feed: "TERMINAL_FEED",
+            up1: "SIGNAL REINFORCEMENT", up2: "EXTRACTION EFFICIENCY",
+            log_save: "> PROGRESS SYNCED.", log_fail: "> FAILURE.",
+            log_win: "> SUCCESS: DATA EXTRACTED.",
+            log_upgrade: "> AUGMENTATION INSTALLED.",
+            log_warn: "> WARNING: Stability critical!",
+            log_boss: "> ALERT: Firewall boss detected!",
+            log_achievement: "> ACHIEVEMENT UNLOCKED!",
+            l_items: "POWER-UPS"
         },
         zh: {
             title: "神經霸主", intro: "內存庫已定位。檢測到 500 個扇區。\n多個防禦系統活躍中。\n謹慎行動。",
-            rules: "1. [拖動] 連接數據節點。\n2. [釋放] (4個以上) 以提取數據。\n3. 避開防火牆和病毒。\n4. 收集強化道具。\n5. 每50層擊敗BOSS。\n6. 底部面板使用技能。",
-            btn: "開始入侵", hp: "穩定度", cr: "信用點", sc: "扇區", aug: "強化系統", feed: "終端反饋", up1: "信號強化", up2: "提取效率", log_save: "> 進度已同步。", log_fail: "> 錯誤：信號中斷。", log_win: "> 成功：數據已提取。", log_upgrade: "> 強化裝置已安裝。", log_warn: "> 警告：穩定度危急！", log_boss: "> 警報：防火牆BOSS出現！", log_achievement: "> 成就解鎖！", l_items: "強化道具", l_ach: "成就"
+            rules: "1. [拖動] 連接數據節點 (4個以上)。\n2. 避開敵人（紅/紫/金）。\n3. 收集強化道具。\n4. 每50層擊敗BOSS。\n5. 使用技能、抽獎和商店！",
+            btn: "開始入侵", hp: "穩定度", cr: "信用點", sc: "扇區",
+            aug: "強化系統", feed: "終端反饋",
+            up1: "信號強化", up2: "提取效率",
+            log_save: "> 進度已同步。", log_fail: "> 失敗。",
+            log_win: "> 成功：數據已提取。",
+            log_upgrade: "> 強化裝置已安裝。",
+            log_warn: "> 警告：穩定度危急！",
+            log_boss: "> 警報：防火牆BOSS出現！",
+            log_achievement: "> 成就解鎖！",
+            l_items: "強化道具"
         },
         th: {
             title: "เจ้าแห่งประสาท", intro: "ระบุตำแหน่งหน่วยความจำแล้ว พบ 500 เซกเตอร์\nระบบป้องกันหลายตัวทำงานอยู่\nดำเนินการด้วยความระมัดระวัง",
-            rules: "1. [ลาก] เพื่อเชื่อมต่อโหนด\n2. [ปล่อย] (4 โหนดขึ้นไป) เพื่อสกัดข้อมูล\n3. หลีกเลี่ยงไฟร์วอลและไวรัส\n4. เก็บไอเท็มเพิ่มพลัง\n5. เอาชนะบอสทุก 50 เซกเตอร์\n6. ใช้สกิลจากแผงด้านล่าง",
-            btn: "เริ่มการบุกรุก", hp: "ความเสถียร", cr: "เครดิต", sc: "เซกเตอร์", aug: "การเพิ่มประสิทธิภาพ", feed: "ข้อมูลเทอร์มินัล", up1: "การเสริมสัญญาณ", up2: "ประสิทธิภาพการสกัด", log_save: "> ซิงค์ข้อมูลแล้ว", log_fail: "> ล้มเหลว: สัญญาณขาดหาย", log_win: "> สำเร็จ: สกัดข้อมูลแล้ว", log_upgrade: "> ติดตั้งการอัปเกรดแล้ว", log_warn: "> คำเตือน: ความเสถียรวิกฤต!", log_boss: "> เตือน: พบบอสไฟร์วอล!", log_achievement: "> ปลดล็อคความสำเร็จ!", l_items: "ไอเท็มเพิ่มพลัง", l_ach: "ความสำเร็จ"
+            rules: "1. [ลาก] เพื่อเชื่อมต่อโหนด (4 ตัวขึ้นไป)\n2. หลีกเลี่ยงศัตรู (แดง/ม่วง/ทอง)\n3. เก็บไอเท็มเพิ่มพลัง\n4. เอาชนะบอสทุก 50 เซกเตอร์\n5. ใช้สกิล ลอตเตอรี่ และร้านค้า!",
+            btn: "เริ่มการบุกรุก", hp: "ความเสถียร", cr: "เครดิต", sc: "เซกเตอร์",
+            aug: "การเพิ่มประสิทธิภาพ", feed: "ข้อมูลเทอร์มินัล",
+            up1: "การเสริมสัญญาณ", up2: "ประสิทธิภาพการสกัด",
+            log_save: "> ซิงค์ข้อมูลแล้ว", log_fail: "> ล้มเหลว",
+            log_win: "> สำเร็จ: สกัดข้อมูลแล้ว",
+            log_upgrade: "> ติดตั้งการอัปเกรดแล้ว",
+            log_warn: "> คำเตือน: ความเสถียรวิกฤต!",
+            log_boss: "> เตือน: พบบอสไฟร์วอล!",
+            log_achievement: "> ปลดล็อคความสำเร็จ!",
+            l_items: "ไอเท็มเพิ่มพลัง"
         }
     };
 
-    // Game state
     let state = {
-        credits: 0, stability: 100, maxStability: 100,
+        credits: 0, gems: 0, stability: 100, maxStability: 100,
         comboMod: 0.1, nodeDensity: 1, cameraY: 0, cameraTargetY: 0,
         lang: 'en', nodesExtracted: 0, totalCreditsEarned: 0,
-        combo: 1, maxCombo: 1, sector: 1,
-        skills: { time: { unlocked: true, cooldown: 0, maxCooldown: 300 }, magnet: { unlocked: false, cooldown: 0, maxCooldown: 400 }, lightning: { unlocked: false, cooldown: 0, maxCooldown: 350 } },
+        combo: 1, maxCombo: 1, sector: 1, bossKills: 0,
+        skills: {
+            time: { unlocked: true, cooldown: 0, maxCooldown: 300 },
+            magnet: { unlocked: false, cooldown: 0, maxCooldown: 400 },
+            lightning: { unlocked: false, cooldown: 0, maxCooldown: 350 }
+        },
         activeSkills: { time: 0, magnet: 0, lightning: 0 },
-        items: { shield: 0, doubleCredit: 0, repair: 0 },
+        items: { shield: 0, doubleCredit: 0, repair: 0, timeFreeze: 0 },
         achievements: {},
         bossActive: false, bossHP: 100, bossMaxHP: 100,
-        timedMode: false, timedSeconds: 60,
-        storyProgress: 0
+        timedMode: false, comboMultiplier24h: false,
+        tutorialShown: false
     };
 
-    // Audio context for sound effects
     let audioCtx = null;
     function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
     function playSound(freq, type = 'square', duration = 0.1, vol = 0.1) {
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.frequency.value = freq;
-        osc.type = type;
-        gain.gain.value = vol;
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + duration);
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            osc.type = type;
+            gain.gain.value = vol;
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
     }
 
     function saveGame() {
-        localStorage.setItem('overlord_enhanced_save', JSON.stringify(state));
+        localStorage.setItem('overlord_ultimate_save', JSON.stringify(state));
         const saveTag = document.getElementById("save-tag");
         saveTag.style.display = "inline";
         setTimeout(() => saveTag.style.display = "none", 1500);
     }
 
     function loadGame() {
-        const saved = localStorage.getItem('overlord_enhanced_save');
+        const saved = localStorage.getItem('overlord_ultimate_save');
         if (saved) {
-            try {
-                state = { ...state, ...JSON.parse(saved) };
-            } catch(e) { console.log("Save corrupted"); }
+            try { state = { ...state, ...JSON.parse(saved) }; } catch(e) {}
         }
         document.getElementById("lang-select").value = state.lang;
         updateSkillsUI();
         updateUI();
         refreshText();
+        updateAchievementsUI();
+        if (!state.tutorialShown) {
+            setTimeout(() => showTutorial(), 500);
+            state.tutorialShown = true;
+        }
     }
 
     function hardReset() {
@@ -595,13 +625,11 @@
 
     let nodes = [], path = [], stars = [], enemies = [], powerUps = [];
     let dragging = false, glitch = 0, mousePos = { x: 0, y: 0 }, particles = [];
-    let screenShake = 0;
+    let screenShake = 0, time = 0;
 
     function init() {
         resize();
-        nodes = [];
-        enemies = [];
-        powerUps = [];
+        nodes = []; enemies = []; powerUps = [];
         const rows = 500, cols = 8 + state.nodeDensity;
         const stepX = gCanvas.width / (cols + 1);
         const stepY = 110;
@@ -610,21 +638,24 @@
             for (let c = 0; c < cols; c++) {
                 const isSpecial = Math.random() < 0.06;
                 nodes.push({
-                    r, c, x: (c + 1) * stepX, y: (r + 1) * stepY + (Math.random() - 0.5) * 20,
+                    r, c, x: (c + 1) * stepX, y: (r + 1) * stepY + (Math.random() - 0.5) * 30,
+                    z: Math.random() * 20 - 10,
                     type: isSpecial ? 1 : 0, extracted: false,
-                    pulse: Math.random() * Math.PI * 2, size: isSpecial ? 8 : 5
+                    pulse: Math.random() * Math.PI * 2,
+                    size: isSpecial ? 8 : 5,
+                    hue: isSpecial ? 0 : 195 + Math.random() * 30
                 });
             }
         }
         
-        // Spawn enemies
-        for (let i = 0; i < 30; i++) {
-            spawnEnemy();
-        }
+        for (let i = 0; i < 30; i++) spawnEnemy();
         
-        stars = Array.from({ length: 150 }, () => ({
-            x: Math.random() * bCanvas.width, y: Math.random() * bCanvas.height,
-            v: Math.random() * 0.3 + 0.1, brightness: Math.random() * 0.5 + 0.5
+        stars = Array.from({ length: 200 }, () => ({
+            x: Math.random() * bCanvas.width,
+            y: Math.random() * bCanvas.height,
+            z: Math.random() * 100,
+            v: Math.random() * 0.3 + 0.1,
+            brightness: Math.random() * 0.5 + 0.5
         }));
     }
 
@@ -634,11 +665,14 @@
         enemies.push({
             x: Math.random() * gCanvas.width,
             y: Math.random() * 500 * 110,
+            z: Math.random() * 30 - 15,
             type: type,
             speed: 0.5 + Math.random() * 1.5,
             size: type === 'firewall' ? 40 : (type === 'virus' ? 25 : 15),
             direction: Math.random() * Math.PI * 2,
-            damage: type === 'firewall' ? 20 : (type === 'virus' ? 10 : 15)
+            damage: type === 'firewall' ? 20 : (type === 'virus' ? 10 : 15),
+            rotation: 0,
+            rotSpeed: (Math.random() - 0.5) * 0.05
         });
     }
 
@@ -646,7 +680,7 @@
         if (Math.random() < 0.3) {
             const types = ['shield', 'doubleCredit', 'repair', 'timeFreeze'];
             const type = types[Math.floor(Math.random() * types.length)];
-            powerUps.push({ x, y, type, life: 300 });
+            powerUps.push({ x, y, z: Math.random() * 20 - 10, type, life: 300 });
         }
     }
 
@@ -668,8 +702,7 @@
     function onStart(e) {
         e.preventDefault();
         initAudio();
-        dragging = true;
-        path = [];
+        dragging = true; path = [];
         const pos = getEventPos(e);
         mousePos = pos;
         handleInteraction(pos);
@@ -691,9 +724,10 @@
         if (path.length >= 4) {
             let baseGain = path.length * 25;
             let specialCount = path.filter(n => n.type === 1).length;
-            let multiplier = (1 + state.comboMod + (specialCount * 0.5)) * state.combo;
+            let multiplier = (1 + state.comboMod + specialCount * 0.5) * state.combo;
             if (state.activeSkills.time > 0) multiplier *= 1.5;
-            if (state.items.doubleCredit > 0) multiplier *= 2;
+            if (state.items.doubleCredit > 0) { multiplier *= 2; state.items.doubleCredit--; }
+            if (state.comboMultiplier24h) multiplier *= 2;
             let gain = Math.floor(baseGain * multiplier);
             
             state.credits += gain;
@@ -702,12 +736,18 @@
             state.combo++;
             if (state.combo > state.maxCombo) state.maxCombo = state.combo;
             
+            // Chance to earn gems
+            if (Math.random() < 0.05) {
+                state.gems++;
+                addLog("💎 Found a gem!", false);
+            }
+            
             path.forEach(n => {
                 n.extracted = true;
                 for (let i = 0; i < 5; i++) {
                     particles.push({
-                        x: n.x, y: n.y - state.cameraY,
-                        vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                        x: n.x, y: n.y - state.cameraY, z: n.z,
+                        vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, vz: (Math.random() - 0.5) * 4,
                         life: 1, color: n.type === 1 ? '#ff0055' : '#00d9ff'
                     });
                 }
@@ -715,23 +755,25 @@
             });
             
             playSound(800 + path.length * 50, 'square', 0.15, 0.1);
-            addLog(I18N[state.lang].log_win + ` +${gain} CR (${path.length} nodes, x${state.combo} combo)`);
+            addLog(I18N[state.lang].log_win + ` +${gain} CR (x${state.combo})`);
             
-            // Check achievements
             checkAchievements();
             
-            // Boss check
             if (Math.floor(state.cameraY / 1000) + 1 > state.sector) {
                 state.sector = Math.floor(state.cameraY / 1000) + 1;
                 if (state.sector % 50 === 0) spawnBoss();
             }
             
-            // Respawn nodes
+            document.getElementById('combo-popup').style.opacity = '1';
+            document.getElementById('combo-popup').innerText = `x${state.combo}`;
+            setTimeout(() => document.getElementById('combo-popup').style.opacity = '0', 1000);
+            
             setTimeout(() => {
                 path.forEach(n => {
                     n.extracted = false;
                     n.type = Math.random() < 0.06 ? 1 : 0;
                     n.size = n.type === 1 ? 8 : 5;
+                    n.z = Math.random() * 20 - 10;
                 });
             }, 2000);
             
@@ -744,10 +786,9 @@
             }
             state.stability -= damage;
             state.combo = Math.max(1, state.combo - 2);
-            glitch = 15;
-            screenShake = 10;
+            glitch = 15; screenShake = 10;
             playSound(200, 'sawtooth', 0.2, 0.15);
-            addLog(I18N[state.lang].log_fail + ` -${damage} STABILITY`, true);
+            addLog(I18N[state.lang].log_fail + ` -${damage}`, true);
         }
         
         nodes.forEach(n => n.active = false);
@@ -760,9 +801,8 @@
         const x = pos.x;
         const y = pos.y + state.cameraY;
         
-        // Check power-up collection
         powerUps.forEach((p, i) => {
-            if (Math.hypot(p.x - x, p.y - y) < 30) {
+            if (Math.hypot(p.x - x, p.y - y) < 35) {
                 collectPowerUp(p, i);
             }
         });
@@ -795,7 +835,7 @@
         state.items[p.type] = (state.items[p.type] || 0) + 1;
         powerUps.splice(index, 1);
         playSound(1000, 'sine', 0.1, 0.2);
-        addLog(`⬆ Collected: ${p.type}`, false);
+        addLog(`⬆ ${p.type} collected!`, false);
         updateUI();
     }
 
@@ -814,23 +854,29 @@
         if (state.bossHP <= 0) {
             state.bossActive = false;
             state.credits += 1000;
+            state.gems += 5;
+            state.bossKills++;
             document.getElementById('mode-indicator').style.display = 'none';
             document.getElementById('boss-health-bar').style.display = 'none';
-            addLog("> BOSS DEFEATED! +1000 CR", false);
+            addLog("> 👑 BOSS DEFEATED! +1000 CR +5 💎", false);
             playSound(1500, 'square', 0.5, 0.3);
             unlockAchievement('firstBoss');
-            state.storyProgress++;
         }
         updateUI();
     }
 
     function checkAchievements() {
         const ach = state.achievements;
-        if (!ach.firstExtract && state.nodesExtracted >= 4) unlockAchievement('firstExtract');
+        if (!ach.firstExtract) unlockAchievement('firstExtract');
         if (!ach.hundredNodes && state.nodesExtracted >= 100) unlockAchievement('hundredNodes');
         if (!ach.thousandCredits && state.totalCreditsEarned >= 1000) unlockAchievement('thousandCredits');
         if (!ach.combo10 && state.combo >= 10) unlockAchievement('combo10');
-        if (!ach.bossKill && state.storyProgress >= 1) unlockAchievement('firstBoss');
+        if (!ach.thousandNodes && state.nodesExtracted >= 1000) unlockAchievement('thousandNodes');
+        if (!ach.tenThousandCredits && state.totalCreditsEarned >= 10000) unlockAchievement('tenThousandCredits');
+        if (!ach.combo25 && state.combo >= 25) unlockAchievement('combo25');
+        if (!ach.bossKill && state.bossKills >= 1) unlockAchievement('firstBoss');
+        if (!ach.bossHunter && state.bossKills >= 5) unlockAchievement('bossHunter');
+        if (!ach.gemCollector && state.gems >= 10) unlockAchievement('gemCollector');
     }
 
     function unlockAchievement(id) {
@@ -838,19 +884,25 @@
         state.achievements[id] = true;
         playSound(1200, 'sine', 0.2, 0.2);
         
-        const names = { firstExtract: "First Blood", hundredNodes: "Centurion", thousandCredits: "Gold Rush", combo10: "Combo Master", firstBoss: "Firewall Breaker" };
+        const names = {
+            firstExtract: "First Blood", hundredNodes: "Centurion",
+            thousandCredits: "Gold Rush", combo10: "Combo Master",
+            firstBoss: "Firewall Breaker", thousandNodes: "Data Hoarder",
+            tenThousandCredits: "Millionaire", combo25: "Combo God",
+            bossHunter: "Boss Hunter", gemCollector: "Gem Collector"
+        };
         const popup = document.createElement('div');
         popup.className = 'achievement-popup';
-        popup.innerHTML = `🏆 ACHIEVEMENT<br><small>${names[id]}</small>`;
+        popup.innerHTML = `🏆<br><small>${names[id]}</small>`;
         document.getElementById('achievement-popup-container').appendChild(popup);
         setTimeout(() => popup.remove(), 5000);
         updateAchievementsUI();
+        addLog(I18N[state.lang].log_achievement + ` ${names[id]}`, false);
     }
 
     function activateSkill(type) {
         if (type === 'time' && state.skills.time.unlocked && state.credits >= 200 && state.skills.time.cooldown <= 0) {
-            state.credits -= 200;
-            state.activeSkills.time = 300;
+            state.credits -= 200; state.activeSkills.time = 300;
             state.skills.time.cooldown = state.skills.time.maxCooldown;
             playSound(600, 'sine', 0.3, 0.2);
             addLog("⏱ Time Slow activated!", false);
@@ -871,16 +923,12 @@
     function upgrade(type) {
         if (type === 'hp' && state.credits >= 500) {
             state.credits -= 500; state.maxStability += 50; state.stability = Math.min(state.stability + 50, state.maxStability);
-            addLog(I18N[state.lang].log_upgrade + " Signal +50");
         } else if (type === 'cb' && state.credits >= 750) {
             state.credits -= 750; state.comboMod += 0.2;
-            addLog(I18N[state.lang].log_upgrade + " Efficiency +20%");
         } else if (type === 'density' && state.credits >= 1000) {
-            state.credits -= 1000; state.nodeDensity += 1;
-            addLog(I18N[state.lang].log_upgrade + " Density +1");
-            init();
+            state.credits -= 1000; state.nodeDensity += 1; init();
         } else return;
-        
+        addLog(I18N[state.lang].log_upgrade, false);
         saveGame(); updateUI();
     }
 
@@ -894,12 +942,9 @@
         if (state.skills.magnet.unlocked) magnetEl.classList.remove('locked');
         if (state.skills.lightning.unlocked) lightningEl.classList.remove('locked');
         
-        if (state.activeSkills.time > 0) document.getElementById('skill-time').classList.add('activated');
-        else document.getElementById('skill-time').classList.remove('activated');
-        if (state.activeSkills.magnet > 0) magnetEl.classList.add('activated');
-        else magnetEl.classList.remove('activated');
-        if (state.activeSkills.lightning > 0) lightningEl.classList.add('activated');
-        else lightningEl.classList.remove('activated');
+        document.getElementById('skill-time').classList.toggle('activated', state.activeSkills.time > 0);
+        magnetEl.classList.toggle('activated', state.activeSkills.magnet > 0);
+        lightningEl.classList.toggle('activated', state.activeSkills.lightning > 0);
     }
 
     function updateUI() {
@@ -907,6 +952,7 @@
         document.getElementById("cr").innerText = state.credits;
         document.getElementById("sc").innerText = state.sector;
         document.getElementById("combo").innerText = 'x' + state.combo;
+        document.getElementById("gems").innerText = state.gems;
         
         document.getElementById("hp-bar").style.width = (state.stability / state.maxStability * 100) + "%";
         document.getElementById("cb-bar").style.width = (state.comboMod * 50) + "%";
@@ -917,6 +963,29 @@
         document.getElementById("up-cb").disabled = state.credits < 750;
         document.getElementById("up-dn").disabled = state.credits < 1000;
         
+        document.getElementById("spin-1").disabled = state.credits < 100;
+        document.getElementById("spin-5").disabled = state.credits < 450;
+        document.getElementById("spin-10").disabled = state.credits < 800;
+        
+        document.getElementById("stats-nodes").innerText = state.nodesExtracted;
+        document.getElementById("stats-credits").innerText = state.totalCreditsEarned;
+        document.getElementById("stats-combo").innerText = state.maxCombo;
+        document.getElementById("stats-bosses").innerText = state.bossKills;
+        
+        document.getElementById("skill-time-cd").style.width = Math.max(0, (1 - state.skills.time.cooldown / state.skills.time.maxCooldown) * 100) + "%";
+        document.getElementById("skill-magnet-cd").style.width = Math.max(0, (1 - state.skills.magnet.cooldown / state.skills.magnet.maxCooldown) * 100) + "%";
+        document.getElementById("skill-lightning-cd").style.width = Math.max(0, (1 - state.skills.lightning.cooldown / state.skills.lightning.maxCooldown) * 100) + "%";
+        
+        updateSkillsUI();
+        
+        // Update items display
+        const itemsContainer = document.getElementById('items-container');
+        itemsContainer.innerHTML = Object.entries(state.items).map(([k, v]) => {
+            if (v <= 0) return '';
+            const icons = { shield: '🛡️', doubleCredit: '💰', repair: '❤️', timeFreeze: '⏱️' };
+            return `<div style="color: var(--green);">${icons[k] || ''} ${k}: ${v}</div>`;
+        }).join('') || '<div style="color: rgba(0, 217, 255, 0.4);">None</div>';
+        
         if (state.stability <= 30) {
             document.getElementById("hp").style.color = '#ff0055';
             document.getElementById("hp-bar").style.background = '#ff0055';
@@ -924,13 +993,6 @@
             document.getElementById("hp").style.color = '#fff';
             document.getElementById("hp-bar").style.background = '#00d9ff';
         }
-        
-        // Skill cooldown bars
-        document.getElementById("skill-time-cd").style.width = Math.max(0, (1 - state.skills.time.cooldown / state.skills.time.maxCooldown) * 100) + "%";
-        document.getElementById("skill-magnet-cd").style.width = Math.max(0, (1 - state.skills.magnet.cooldown / state.skills.magnet.maxCooldown) * 100) + "%";
-        document.getElementById("skill-lightning-cd").style.width = Math.max(0, (1 - state.skills.lightning.cooldown / state.skills.lightning.maxCooldown) * 100) + "%";
-        
-        updateSkillsUI();
         
         if (state.stability <= 0) {
             state.stability = Math.floor(state.maxStability * 0.5);
@@ -942,7 +1004,13 @@
 
     function updateAchievementsUI() {
         const list = document.getElementById('achievements-list');
-        const names = { firstExtract: "First Blood", hundredNodes: "Centurion", thousandCredits: "Gold Rush", combo10: "Combo Master", firstBoss: "Firewall Breaker" };
+        const names = {
+            firstExtract: "First Blood", hundredNodes: "Centurion",
+            thousandCredits: "Gold Rush", combo10: "Combo Master",
+            firstBoss: "Firewall Breaker", thousandNodes: "Data Hoarder",
+            tenThousandCredits: "Millionaire", combo25: "Combo God",
+            bossHunter: "Boss Hunter", gemCollector: "Gem Collector"
+        };
         list.innerHTML = Object.keys(state.achievements).map(k => `🏆 ${names[k]}`).join('<br>') || 'None yet';
     }
 
@@ -957,7 +1025,6 @@
     }
 
     function changeLang(l) { state.lang = l; refreshText(); saveGame(); }
-
     function refreshText() {
         const d = I18N[state.lang];
         if (!d) return;
@@ -972,170 +1039,323 @@
         document.getElementById("l-up1").innerText = d.up1;
         document.getElementById("l-up2").innerText = d.up2;
         document.getElementById("l-items").innerText = d.l_items;
-        document.getElementById("l-ach").innerText = d.l_ach;
     }
 
-    function closeModal() {
-        document.getElementById("modal").style.display = "none";
+    // Lottery system
+    function openLottery() {
+        initAudio();
+        document.getElementById('lottery-modal').style.display = 'flex';
+        document.getElementById('lottery-result').innerText = '';
+    }
+    function closeLottery() { document.getElementById('lottery-modal').style.display = 'none'; }
+    
+    function spinLottery(times) {
+        const cost = times === 1 ? 100 : (times === 5 ? 450 : 800);
+        if (state.credits < cost) return;
+        state.credits -= cost;
+        
+        const slots = document.getElementById('lottery-slots').children;
+        const results = [];
+        
+        for (let t = 0; t < times; t++) {
+            const prizes = [
+                { icon: '💰', prize: 50, type: 'credits' },
+                { icon: '💰', prize: 100, type: 'credits' },
+                { icon: '💰', prize: 200, type: 'credits' },
+                { icon: '💎', prize: 1, type: 'gems' },
+                { icon: '💎', prize: 2, type: 'gems' },
+                { icon: '🛡️', prize: 'Shield x1', type: 'item', itemType: 'shield' },
+                { icon: '💰', prize: 'Double Credits', type: 'item', itemType: 'doubleCredit' },
+                { icon: '✨', prize: 500, type: 'credits' },
+                { icon: '💎', prize: 5, type: 'gems' },
+                { icon: '🎯', prize: 'All items +1', type: 'allItems' }
+            ];
+            results.push(prizes[Math.floor(Math.random() * prizes.length)]);
+        }
+        
+        // Animate slots
+        let spinCount = 0;
+        const spinInterval = setInterval(() => {
+            for (let slot of slots) {
+                slot.innerText = ['💰', '💎', '🛡️', '✨', '🎯'][Math.floor(Math.random() * 5)];
+            }
+            spinCount++;
+            if (spinCount > 10) {
+                clearInterval(spinInterval);
+                // Show results
+                let totalGain = '';
+                results.forEach(r => {
+                    if (r.type === 'credits') {
+                        state.credits += r.prize;
+                        totalGain += `+${r.prize} CR `;
+                    } else if (r.type === 'gems') {
+                        state.gems += r.prize;
+                        totalGain += `+${r.prize} 💎 `;
+                    } else if (r.type === 'item') {
+                        state.items[r.itemType] = (state.items[r.itemType] || 0) + 1;
+                        totalGain += `${r.prize} `;
+                    } else if (r.type === 'allItems') {
+                        Object.keys(state.items).forEach(k => state.items[k]++);
+                        totalGain += 'ALL ITEMS +1 ';
+                    }
+                });
+                
+                for (let slot of slots) slot.innerText = results[0].icon;
+                document.getElementById('lottery-result').innerText = totalGain || 'Try again!';
+                playSound(1000 + Math.random() * 500, 'sine', 0.3, 0.2);
+            }
+        }, 100);
+        
+        updateUI();
+        saveGame();
     }
 
-    // Game loop
+    // Shop system
+    function openShop() { initAudio(); document.getElementById('shop-modal').style.display = 'flex'; }
+    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+    
+    function buyItem(item) {
+        const prices = {
+            shield_pack: 5, credit_boost: 10, stability_restore: 15,
+            combo_multiplier: 20, rare_powerup: 25
+        };
+        
+        if (state.gems < prices[item]) {
+            addLog("Not enough gems!", true);
+            return;
+        }
+        
+        state.gems -= prices[item];
+        
+        switch(item) {
+            case 'shield_pack':
+                state.items.shield += 3;
+                addLog("🛡️ Purchased Shield Pack x3!");
+                break;
+            case 'credit_boost':
+                state.credits += 1000;
+                state.totalCreditsEarned += 1000;
+                addLog("💰 +1000 Credits!");
+                break;
+            case 'stability_restore':
+                state.stability = state.maxStability;
+                addLog("❤️ Stability fully restored!");
+                break;
+            case 'combo_multiplier':
+                state.comboMultiplier24h = true;
+                addLog("🔥 Combo Multiplier activated! (24h)");
+                break;
+            case 'rare_powerup':
+                const types = ['shield', 'doubleCredit', 'repair', 'timeFreeze'];
+                const randomType = types[Math.floor(Math.random() * types.length)];
+                state.items[randomType] = (state.items[randomType] || 0) + 2;
+                addLog(`✨ Rare ${randomType} +2!`);
+                break;
+        }
+        
+        playSound(1200, 'sine', 0.2, 0.2);
+        updateUI();
+        saveGame();
+    }
+
+    // Tutorial
+    function showTutorial() { document.getElementById('tutorial-modal').style.display = 'flex'; }
+    function closeTutorial() { document.getElementById('tutorial-modal').style.display = 'none'; }
+
     function update() {
+        time++;
         state.cameraY += (state.cameraTargetY - state.cameraY) * 0.1;
         if (screenShake > 0) screenShake *= 0.9;
         
-        // Update particles
         particles = particles.filter(p => { p.life -= 0.02; return p.life > 0; });
-        particles.forEach(p => { p.x += p.vx; p.y += p.vy; });
+        particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.z += p.vz; });
         
-        // Update enemies
-        enemies.forEach(e => {
+        enemies.forEach((e, i) => {
             e.x += Math.cos(e.direction) * e.speed;
             e.y += Math.sin(e.direction) * e.speed;
+            e.z += Math.sin(time * 0.01 + i) * 0.5;
+            e.rotation += e.rotSpeed;
             if (e.x < 0 || e.x > gCanvas.width) e.direction = Math.PI - e.direction;
             e.direction += (Math.random() - 0.5) * 0.05;
             
-            // Collision with player cursor
             if (dragging && Math.hypot(e.x - mousePos.x, e.y - (mousePos.y + state.cameraY)) < e.size) {
                 state.stability -= e.damage * 0.1;
-                enemies.splice(enemies.indexOf(e), 1);
+                enemies.splice(i, 1);
                 spawnEnemy();
                 if (state.bossActive) damageBoss(10);
             }
         });
         
-        // Update skills
-        if (state.activeSkills.time > 0) state.activeSkills.time--;
-        if (state.activeSkills.magnet > 0) state.activeSkills.magnet--;
-        if (state.activeSkills.lightning > 0) state.activeSkills.lightning--;
+        Object.keys(state.activeSkills).forEach(k => {
+            if (state.activeSkills[k] > 0) state.activeSkills[k]--;
+        });
         
         Object.keys(state.skills).forEach(k => {
             if (state.skills[k].cooldown > 0) state.skills[k].cooldown--;
         });
         
-        // Update power-ups
         powerUps = powerUps.filter(p => { p.life--; return p.life > 0; });
-        
-        // Timed mode
-        if (state.timedMode) {
-            state.timedSeconds -= 1/60;
-            if (state.timedSeconds <= 0) {
-                state.stability -= 20;
-                state.timedSeconds = 60;
-            }
-        }
         
         updateUI();
     }
 
     function draw() {
-        // Background
+        // 3D starfield background
         bctx.fillStyle = "#020205";
         bctx.fillRect(0, 0, bCanvas.width, bCanvas.height);
+        
         stars.forEach(s => {
             s.y += s.v;
-            if (s.y > bCanvas.height) { s.y = 0; s.x = Math.random() * bCanvas.width; }
-            bctx.fillStyle = `rgba(0, 217, 255, ${s.brightness * 0.15})`;
-            bctx.fillRect(s.x, s.y, 1.5, 1.5);
+            s.z += 0.1;
+            if (s.y > bCanvas.height) { s.y = 0; s.x = Math.random() * bCanvas.width; s.z = 0; }
+            const scale = 1 + s.z / 100;
+            const alpha = s.brightness * 0.15 * scale;
+            bctx.fillStyle = `rgba(0, 217, 255, ${alpha})`;
+            bctx.fillRect(s.x, s.y, 2 * scale, 2 * scale);
         });
 
-        // Game canvas with shake
+        // Game canvas with 3D effects
         gctx.save();
         const shakeX = (Math.random() - 0.5) * screenShake;
         const shakeY = (Math.random() - 0.5) * screenShake;
         gctx.translate(shakeX, shakeY);
         
-        gctx.fillStyle = glitch > 0 ? "rgba(255, 0, 85, 0.05)" : "rgba(2, 2, 5, 0.3)";
+        gctx.fillStyle = glitch > 0 ? "rgba(255, 0, 85, 0.05)" : "rgba(2, 2, 5, 0.2)";
         gctx.fillRect(0, 0, gCanvas.width, gCanvas.height);
+        if (glitch > 0) glitch--;
 
         gctx.save();
         gctx.translate(0, -state.cameraY);
         
-        // Draw enemies
+        // Draw 3D enemies
         enemies.forEach(e => {
-            if (Math.abs(e.y - state.cameraY - gCanvas.height/2) > gCanvas.height) return;
+            if (Math.abs(e.y - state.cameraY - gCanvas.height/2) > gCanvas.height + 100) return;
+            const scale = 1 + e.z / 50;
             gctx.save();
             gctx.translate(e.x, e.y);
-            gctx.rotate(Date.now() * 0.001);
+            gctx.scale(scale, scale);
+            gctx.rotate(e.rotation);
+            
+            // 3D shadow
+            gctx.fillStyle = 'rgba(0,0,0,0.3)';
+            gctx.fillRect(-e.size/2 + 3, -e.size/2 + 3, e.size, e.size);
+            
             if (e.type === 'firewall') {
-                gctx.fillStyle = "rgba(255, 0, 85, 0.3)";
+                const gradient = gctx.createLinearGradient(-e.size/2, -e.size/2, e.size/2, e.size/2);
+                gradient.addColorStop(0, 'rgba(255, 0, 85, 0.5)');
+                gradient.addColorStop(1, 'rgba(255, 0, 85, 0.1)');
+                gctx.fillStyle = gradient;
                 gctx.fillRect(-e.size/2, -e.size/2, e.size, e.size);
                 gctx.strokeStyle = "#ff0055";
+                gctx.lineWidth = 2;
                 gctx.strokeRect(-e.size/2, -e.size/2, e.size, e.size);
             } else if (e.type === 'virus') {
+                const gradient = gctx.createRadialGradient(0, 0, 0, 0, 0, e.size);
+                gradient.addColorStop(0, 'rgba(180, 77, 255, 0.5)');
+                gradient.addColorStop(1, 'rgba(180, 77, 255, 0.1)');
+                gctx.fillStyle = gradient;
                 gctx.beginPath();
                 gctx.arc(0, 0, e.size, 0, Math.PI * 2);
-                gctx.fillStyle = "rgba(180, 77, 255, 0.3)";
                 gctx.fill();
                 gctx.strokeStyle = "#b44dff";
+                gctx.lineWidth = 2;
                 gctx.stroke();
             } else {
+                const gradient = gctx.createRadialGradient(0, 0, 0, 0, 0, e.size);
+                gradient.addColorStop(0, 'rgba(255, 215, 0, 0.5)');
+                gradient.addColorStop(1, 'rgba(255, 215, 0, 0.1)');
+                gctx.fillStyle = gradient;
                 gctx.beginPath();
                 gctx.arc(0, 0, e.size, 0, Math.PI * 2);
-                gctx.fillStyle = "rgba(255, 215, 0, 0.2)";
                 gctx.fill();
                 gctx.strokeStyle = "#ffd700";
+                gctx.lineWidth = 2;
                 gctx.stroke();
             }
             gctx.restore();
         });
         
-        // Draw power-ups
+        // Draw 3D power-ups
         powerUps.forEach(p => {
+            const scale = 1 + p.z / 50;
             gctx.save();
             gctx.translate(p.x, p.y);
-            gctx.rotate(Date.now() * 0.002);
+            gctx.scale(scale, scale);
+            gctx.rotate(time * 0.02);
+            
             const colors = { shield: '#00ff88', doubleCredit: '#ffd700', repair: '#00d9ff', timeFreeze: '#b44dff' };
-            gctx.fillStyle = colors[p.type] + '40';
-            gctx.fillRect(-10, -10, 20, 20);
+            gctx.shadowColor = colors[p.type];
+            gctx.shadowBlur = 15;
             gctx.strokeStyle = colors[p.type];
-            gctx.strokeRect(-10, -10, 20, 20);
+            gctx.lineWidth = 2;
+            gctx.strokeRect(-12, -12, 24, 24);
+            gctx.shadowBlur = 0;
+            
             gctx.fillStyle = '#fff';
-            gctx.font = '12px Arial';
-            gctx.fillText(p.type[0], -3, 4);
+            gctx.font = '14px Arial';
+            gctx.textAlign = 'center';
+            gctx.textBaseline = 'middle';
+            gctx.fillText(p.type[0], 0, 0);
             gctx.restore();
         });
         
-        // Draw nodes
+        // Draw 3D nodes
         nodes.forEach(n => {
             if (Math.abs(n.y - state.cameraY - gCanvas.height/2) > gCanvas.height + 50) return;
             if (n.extracted) return;
             
-            const size = n.active ? n.size + 3 : n.size;
+            const scale = 1 + n.z / 30;
+            const size = (n.active ? n.size + 3 : n.size) * scale;
             
+            // 3D glow
             if (n.active || n.type === 1) {
-                gctx.beginPath();
-                gctx.arc(n.x, n.y, size + 4, 0, Math.PI * 2);
-                gctx.fillStyle = n.type === 1 ? "rgba(255, 0, 85, 0.2)" : "rgba(0, 217, 255, 0.2)";
-                gctx.fill();
+                gctx.shadowColor = n.type === 1 ? '#ff0055' : '#00d9ff';
+                gctx.shadowBlur = 15;
             }
             
             gctx.beginPath();
             gctx.arc(n.x, n.y, size, 0, Math.PI * 2);
-            if (n.active) { gctx.fillStyle = "#fff"; gctx.fill(); gctx.strokeStyle = "#fff"; }
-            else if (n.type === 1) { gctx.strokeStyle = "#ff0055"; }
-            else { gctx.strokeStyle = "rgba(0, 217, 255, 0.3)"; }
-            gctx.lineWidth = n.active ? 2 : 1;
-            gctx.stroke();
+            
+            if (n.active) {
+                gctx.fillStyle = "#fff";
+                gctx.fill();
+                gctx.strokeStyle = "#fff";
+                gctx.lineWidth = 2;
+                gctx.stroke();
+            } else if (n.type === 1) {
+                gctx.fillStyle = "rgba(255, 0, 85, 0.2)";
+                gctx.fill();
+                gctx.strokeStyle = "#ff0055";
+                gctx.lineWidth = 1.5;
+                gctx.stroke();
+            } else {
+                gctx.strokeStyle = "rgba(0, 217, 255, 0.3)";
+                gctx.lineWidth = 1;
+                gctx.stroke();
+            }
+            gctx.shadowBlur = 0;
         });
         
-        // Draw path
+        // Draw path with 3D effect
         if (path.length > 1) {
-            gctx.strokeStyle = "rgba(0, 217, 255, 0.2)";
-            gctx.lineWidth = 8;
+            gctx.shadowColor = '#00d9ff';
+            gctx.shadowBlur = 20;
+            gctx.strokeStyle = "rgba(0, 217, 255, 0.6)";
+            gctx.lineWidth = 5;
             gctx.beginPath(); gctx.moveTo(path[0].x, path[0].y);
             path.forEach(p => gctx.lineTo(p.x, p.y));
             gctx.stroke();
+            gctx.shadowBlur = 0;
             
-            gctx.strokeStyle = "#00d9ff";
-            gctx.lineWidth = 3;
+            gctx.strokeStyle = "#fff";
+            gctx.lineWidth = 2;
             gctx.beginPath(); gctx.moveTo(path[0].x, path[0].y);
             path.forEach(p => gctx.lineTo(p.x, p.y));
             gctx.stroke();
             
             path.forEach(p => {
                 gctx.beginPath();
-                gctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                gctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
                 gctx.fillStyle = "#fff";
                 gctx.fill();
             });
@@ -1143,29 +1363,30 @@
         
         gctx.restore();
         
-        // Particles
+        // Draw 3D particles
         particles.forEach(p => {
+            const scale = 1 + p.z / 30;
             gctx.fillStyle = p.color;
             gctx.globalAlpha = p.life;
-            gctx.fillRect(p.x, p.y + state.cameraY, 2, 2);
+            gctx.fillRect(p.x, p.y + state.cameraY, 3 * scale, 3 * scale);
         });
         gctx.globalAlpha = 1;
         
-        // Mouse cursor effect
+        // Mouse cursor line
         if (dragging && path.length > 0) {
             const lastNode = path[path.length - 1];
             gctx.beginPath();
             gctx.moveTo(lastNode.x, lastNode.y - state.cameraY);
             gctx.lineTo(mousePos.x, mousePos.y);
-            gctx.strokeStyle = "rgba(0, 217, 255, 0.3)";
-            gctx.lineWidth = 1;
-            gctx.setLineDash([4, 4]);
+            gctx.strokeStyle = "rgba(0, 217, 255, 0.4)";
+            gctx.lineWidth = 2;
+            gctx.setLineDash([5, 5]);
             gctx.stroke();
             gctx.setLineDash([]);
         }
         
         gctx.restore();
-        requestAnimationFrame(() => { draw(); });
+        requestAnimationFrame(() => draw());
     }
 
     // Event listeners
@@ -1187,24 +1408,31 @@
             case '2': activateSkill('magnet'); break;
             case '3': activateSkill('lightning'); break;
             case 's': if(e.ctrlKey) { e.preventDefault(); saveGame(); } break;
-            case 't': state.timedMode = !state.timedMode; 
-                     document.getElementById('timed-indicator').style.display = state.timedMode ? 'block' : 'none';
-                     break;
+            case 't': state.timedMode = !state.timedMode; break;
         }
     });
 
-    // Game loop
+    // Click outside modals to close
+    document.getElementById('tutorial-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeTutorial();
+    });
+    document.getElementById('lottery-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeLottery();
+    });
+    document.getElementById('shop-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeShop();
+    });
+
     setInterval(update, 1000/60);
-    
-    // Auto-save
     setInterval(() => { saveGame(); }, 30000);
 
     loadGame();
     init();
     draw();
     
-    console.log('%cBREACH: OVERLORD ENHANCED %cINITIALIZED', 'color: #00d9ff; font-size: 20px;', 'color: #fff;');
-    console.log('%cAll systems online. Skills, enemies, achievements loaded.', 'color: #888;');
+    console.log('%c🎮 BREACH: OVERLORD 3D ULTIMATE %cINITIALIZED', 'color: #00d9ff; font-size: 20px;', 'color: #fff;');
+    console.log('%cAll systems: Skills, Enemies, Bosses, Lottery, Shop, 3D effects, Tutorial', 'color: #888;');
+    console.log('%cPress ? for help or click HELP button in header', 'color: var(--gold);');
 </script>
 </body>
 </html>
