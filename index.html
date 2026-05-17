@@ -3,232 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>BREACH: OVERLORD // 3D ULTIMATE EDITION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;700&family=Noto+Sans+TC:wght@500&family=Noto+Sans+Thai:wght@500&display=swap" rel="stylesheet">
+    <title>BREACH: OVERLORD // ROGUELIKE EDITION v5.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Thai:wght@400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon: #00d9ff;
-            --dark: #020205;
-            --warn: #ff0055;
-            --gold: #ffd700;
-            --purple: #b44dff;
-            --green: #00ff88;
-            --orange: #ff8800;
-            --glow: rgba(0, 217, 255, 0.4);
-            --warn-glow: rgba(255, 0, 85, 0.4);
-            --gold-glow: rgba(255, 215, 0, 0.4);
+            --neon: #00d9ff; --neon2: #00ffcc; --dark: #020205; --darker: #010103;
+            --warn: #ff0055; --warn2: #ff3377; --gold: #ffd700; --gold2: #ffed4a;
+            --purple: #b44dff; --purple2: #cc77ff; --green: #00ff88; --green2: #33ff99;
+            --orange: #ff8800; --orange2: #ffaa33; --blue: #4488ff; --pink: #ff44aa;
+            --teal: #00ccaa; --glow: rgba(0,217,255,0.4); --warn-glow: rgba(255,0,85,0.4);
+            --gold-glow: rgba(255,215,0,0.4); --purple-glow: rgba(180,77,255,0.4);
+            --green-glow: rgba(0,255,136,0.4);
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body, html {
-            margin: 0; padding: 0; background: var(--dark); color: var(--neon);
-            font-family: 'JetBrains Mono', 'Noto Sans TC', 'Noto Sans Thai', monospace;
-            overflow: hidden; height: 100vh; width: 100vw;
-            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-        }
-
-        #bg-canvas { position: fixed; inset: 0; z-index: 1; opacity: 0.3; }
-
-        #os-container {
-            position: relative; display: grid;
-            grid-template-columns: 340px 1fr 340px;
-            grid-template-rows: 70px 1fr 200px;
-            height: 100vh; z-index: 10;
-            border: 2px solid rgba(0, 217, 255, 0.1); box-sizing: border-box;
-        }
-
-        .panel {
-            background: rgba(0, 5, 10, 0.95); border: 1px solid rgba(0, 217, 255, 0.2);
-            backdrop-filter: blur(15px); padding: 15px;
-            display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
-        }
-        
-        #viewport { position: relative; overflow: hidden; grid-row: 2; background: radial-gradient(circle at center, #0a0a15 0%, #020205 100%); }
-        #game-canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
-
-        #header {
-            grid-column: 1 / -1; height: 70px;
-            background: rgba(0, 217, 255, 0.05); border-bottom: 1px solid var(--neon);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; font-family: 'Orbitron'; z-index: 100;
-        }
-
-        #bottom-panel {
-            grid-column: 1 / -1; grid-row: 3; height: 200px;
-            background: rgba(0, 5, 10, 0.95); border-top: 1px solid rgba(0, 217, 255, 0.2);
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-            gap: 10px; padding: 15px; overflow: hidden;
-        }
-
-        .bottom-section {
-            background: rgba(0, 217, 255, 0.03); border: 1px solid rgba(0, 217, 255, 0.15);
-            padding: 10px; display: flex; flex-direction: column; gap: 5px;
-        }
-
-        h2 {
-            font-size: 11px; margin: 0; color: #fff; letter-spacing: 2px;
-            border-left: 3px solid var(--neon); padding-left: 10px;
-        }
-        
-        .val { display: block; font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 0 10px var(--glow); }
-        
-        .btn {
-            background: rgba(0, 217, 255, 0.05); border: 1px solid var(--neon);
-            color: var(--neon); padding: 10px; cursor: pointer;
-            font-family: 'Orbitron'; font-size: 9px; transition: 0.3s;
-            text-align: center; letter-spacing: 1px;
-        }
-        
-        .btn:hover:not(:disabled) {
-            background: var(--neon); color: var(--dark);
-            font-weight: 900; box-shadow: 0 0 20px var(--glow);
-        }
-        
-        .btn:disabled { opacity: 0.2; cursor: not-allowed; }
-        
-        .btn.gold { border-color: var(--gold); color: var(--gold); }
-        .btn.gold:hover:not(:disabled) { background: var(--gold); color: var(--dark); box-shadow: 0 0 20px var(--gold-glow); }
-        
-        .btn.warn { border-color: var(--warn); color: var(--warn); }
-        .btn.warn:hover:not(:disabled) { background: var(--warn); color: #fff; box-shadow: 0 0 20px var(--warn-glow); }
-        
-        .btn.purple { border-color: var(--purple); color: var(--purple); }
-        .btn.purple:hover:not(:disabled) { background: var(--purple); color: #fff; box-shadow: 0 0 20px rgba(180, 77, 255, 0.4); }
-        
-        .btn.orange { border-color: var(--orange); color: var(--orange); }
-        .btn.orange:hover:not(:disabled) { background: var(--orange); color: #fff; box-shadow: 0 0 20px rgba(255, 136, 0, 0.4); }
-
-        .skill-slot {
-            background: rgba(0, 217, 255, 0.03); border: 1px solid rgba(0, 217, 255, 0.2);
-            padding: 8px; display: flex; flex-direction: column; gap: 3px;
-            transition: 0.3s; cursor: pointer; position: relative; font-size: 9px;
-        }
-        
-        .skill-slot:hover:not(.locked) { border-color: var(--neon); box-shadow: 0 0 15px var(--glow); }
-        .skill-slot.locked { opacity: 0.3; cursor: not-allowed; }
-        .skill-slot.activated { border-color: var(--gold) !important; box-shadow: 0 0 20px var(--gold-glow) !important; animation: pulseSkill 1s infinite; }
-        
-        @keyframes pulseSkill {
-            0%, 100% { box-shadow: 0 0 10px var(--gold-glow); }
-            50% { box-shadow: 0 0 30px var(--gold-glow); }
-        }
-
-        #modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-        }
-        
-        #terminal-box {
-            width: 700px; max-width: 90vw; max-height: 85vh;
-            border: 1px solid var(--neon); padding: 40px; background: #00050a;
-            box-shadow: 0 0 100px rgba(0, 217, 255, 0.1);
-            animation: fadeIn 0.5s ease; overflow-y: auto;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        
-        .fill { height: 100%; background: var(--neon); transition: 0.3s; box-shadow: 0 0 10px var(--neon); }
-        .progress-bar { height: 4px; background: rgba(255,255,255,0.05); margin-top: 5px; overflow: hidden; }
-
-        #logs { font-size: 8px; color: rgba(0, 217, 255, 0.4); height: 100%; overflow-y: auto; line-height: 1.5; }
-        
-        .log-entry { animation: slideIn 0.3s ease; padding: 1px 0; border-bottom: 1px solid rgba(0, 217, 255, 0.03); }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .achievement-popup {
-            position: fixed; top: 20px; right: 20px;
-            background: rgba(0, 0, 0, 0.9); border: 2px solid var(--gold);
-            padding: 15px 25px; color: var(--gold); font-family: 'Orbitron';
-            z-index: 500; animation: slideInRight 0.5s ease, fadeOut 2s 3s ease forwards;
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes fadeOut {
-            to { opacity: 0; transform: translateY(-20px); }
-        }
-        
-        .combo-display {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 48px; font-family: 'Orbitron'; color: var(--gold);
-            text-shadow: 0 0 30px var(--gold-glow); pointer-events: none;
-            opacity: 0; transition: 0.3s;
-        }
-        
-        .boss-health {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            width: 300px; height: 8px; background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--warn); display: none;
-        }
-        
-        .boss-health-fill { height: 100%; background: var(--warn); transition: 0.3s; box-shadow: 0 0 20px var(--warn-glow); }
-        
-        .tutorial-highlight {
-            position: absolute; border: 2px solid var(--gold);
-            box-shadow: 0 0 30px var(--gold-glow); pointer-events: none;
-            z-index: 200; animation: pulseHighlight 1s infinite;
-        }
-        
-        @keyframes pulseHighlight {
-            0%, 100% { box-shadow: 0 0 10px var(--gold-glow); }
-            50% { box-shadow: 0 0 40px var(--gold-glow); }
-        }
-        
-        .tutorial-text {
-            position: absolute; color: #fff; font-size: 14px; z-index: 201;
-            background: rgba(0,0,0,0.9); padding: 10px 20px; border: 1px solid var(--gold);
-            font-family: 'Orbitron'; pointer-events: none;
-        }
-        
-        .lottery-slot {
-            display: inline-block; width: 60px; height: 80px;
-            background: rgba(0,0,0,0.5); border: 2px solid var(--neon);
-            text-align: center; line-height: 80px; font-size: 40px;
-            margin: 0 10px; animation: slotSpin 0.1s infinite linear;
-        }
-        
-        @keyframes slotSpin {
-            0% { transform: rotateX(0deg); }
-            100% { transform: rotateX(360deg); }
-        }
-        
-        .card-3d {
-            transform-style: preserve-3d; transition: transform 0.5s;
-            display: inline-block; cursor: pointer;
-        }
-        
-        .card-3d:hover { transform: rotateY(10deg) rotateX(5deg) scale(1.05); }
-        
-        .shop-item {
-            display: flex; align-items: center; gap: 15px;
-            padding: 15px; background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(0,217,255,0.2); margin-bottom: 10px;
-            transition: 0.3s; cursor: pointer;
-        }
-        
-        .shop-item:hover {
-            border-color: var(--neon); box-shadow: 0 0 20px var(--glow);
-            transform: translateX(5px);
-        }
-        
-        .shop-item-icon { font-size: 40px; min-width: 60px; text-align: center; }
-        
-        @media (max-width: 768px) {
-            #os-container { grid-template-columns: 1fr; grid-template-rows: 60px 1fr 150px; }
-            .panel { display: none; }
-            #bottom-panel { grid-template-columns: 1fr 1fr 1fr; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body,html{margin:0;padding:0;background:var(--dark);color:var(--neon);font-family:'JetBrains Mono','Noto Sans TC','Noto Sans Thai','Rajdhani',monospace;overflow:hidden;height:100vh;width:100vw;user-select:none;-webkit-user-select:none}
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-track{background:rgba(0,217,255,0.05)}
+        ::-webkit-scrollbar-thumb{background:rgba(0,217,255,0.3);border-radius:2px}
+        #bg-canvas{position:fixed;inset:0;z-index:1;opacity:0.3;pointer-events:none}
+        #os-container{position:relative;display:grid;grid-template-columns:340px 1fr 340px;grid-template-rows:60px 1fr 200px;height:100vh;z-index:10;border:2px solid rgba(0,217,255,0.1)}
+        .panel{background:rgba(0,5,10,0.92);border:1px solid rgba(0,217,255,0.2);backdrop-filter:blur(20px);padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+        #viewport{position:relative;overflow:hidden;grid-row:2;background:radial-gradient(circle at center,#0a0a18 0%,#020205 100%)}
+        #game-canvas{display:block;cursor:crosshair;width:100%;height:100%}
+        #header{grid-column:1/-1;height:60px;background:rgba(0,10,20,0.95);border-bottom:1px solid var(--neon);display:flex;align-items:center;justify-content:space-between;padding:0 15px;font-family:'Orbitron';z-index:100}
+        #bottom-panel{grid-column:1/-1;grid-row:3;height:200px;background:rgba(0,5,10,0.95);border-top:1px solid rgba(0,217,255,0.2);display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:8px;overflow:hidden}
+        .bottom-section{background:rgba(0,217,255,0.02);border:1px solid rgba(0,217,255,0.1);padding:6px;display:flex;flex-direction:column;gap:3px}
+        .section-title{font-size:8px;font-family:'Orbitron';letter-spacing:1px;color:var(--neon);text-transform:uppercase;border-bottom:1px solid rgba(0,217,255,0.2);padding-bottom:3px;margin-bottom:2px}
+        h2{font-size:9px;margin:0;color:#fff;letter-spacing:2px;border-left:3px solid var(--neon);padding-left:8px;text-transform:uppercase;font-family:'Orbitron'}
+        .val{display:block;font-size:15px;font-weight:700;color:#fff;text-shadow:0 0 10px var(--glow);font-family:'Orbitron'}
+        .btn{background:rgba(0,217,255,0.05);border:1px solid var(--neon);color:var(--neon);padding:5px 10px;cursor:pointer;font-family:'Orbitron';font-size:7px;transition:0.3s;text-align:center;letter-spacing:1px;text-transform:uppercase;position:relative;overflow:hidden}
+        .btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(0,217,255,0.3);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.6s,height 0.6s}
+        .btn:hover::before{width:300px;height:300px}
+        .btn:hover:not(:disabled){background:var(--neon);color:var(--dark);font-weight:900;box-shadow:0 0 20px var(--glow);transform:translateY(-2px)}
+        .btn:active:not(:disabled){transform:translateY(0) scale(0.98)}
+        .btn:disabled{opacity:0.2;cursor:not-allowed}
+        .btn.gold{border-color:var(--gold);color:var(--gold)}
+        .btn.gold:hover:not(:disabled){background:var(--gold);color:#000;box-shadow:0 0 20px var(--gold-glow)}
+        .btn.warn{border-color:var(--warn);color:var(--warn)}
+        .btn.warn:hover:not(:disabled){background:var(--warn);color:#fff;box-shadow:0 0 20px var(--warn-glow)}
+        .btn.purple{border-color:var(--purple);color:var(--purple)}
+        .btn.purple:hover:not(:disabled){background:var(--purple);color:#fff;box-shadow:0 0 20px var(--purple-glow)}
+        .btn.green{border-color:var(--green);color:var(--green)}
+        .btn.green:hover:not(:disabled){background:var(--green);color:#000;box-shadow:0 0 20px var(--green-glow)}
+        .btn.orange{border-color:var(--orange);color:var(--orange)}
+        .btn.orange:hover:not(:disabled){background:var(--orange);color:#fff;box-shadow:0 0 20px rgba(255,136,0,0.4)}
+        .btn.teal{border-color:var(--teal);color:var(--teal)}
+        .btn.teal:hover:not(:disabled){background:var(--teal);color:#000;box-shadow:0 0 20px rgba(0,204,170,0.4)}
+        .skill-slot{background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);padding:4px;display:flex;flex-direction:column;gap:1px;transition:0.3s;cursor:pointer;font-size:7px;overflow:hidden}
+        .skill-slot:hover:not(.locked){border-color:var(--neon);box-shadow:0 0 15px var(--glow);transform:translateX(2px)}
+        .skill-slot.locked{opacity:0.3;cursor:not-allowed;filter:grayscale(0.5)}
+        .skill-slot.activated{border-color:var(--gold)!important;box-shadow:0 0 20px var(--gold-glow)!important;animation:pulseSkill 1s infinite;background:rgba(255,215,0,0.1)!important}
+        @keyframes pulseSkill{0%,100%{box-shadow:0 0 10px var(--gold-glow)}50%{box-shadow:0 0 30px var(--gold-glow)}}
+        .fill{height:100%;background:var(--neon);transition:0.4s;box-shadow:0 0 10px var(--neon)}
+        .progress-bar{height:3px;background:rgba(255,255,255,0.05);margin-top:4px;overflow:hidden;border-radius:1px}
+        #logs{font-size:7px;color:rgba(0,217,255,0.4);height:100%;overflow-y:auto;line-height:1.4}
+        .log-entry{animation:slideIn 0.3s ease;padding:1px 0;border-bottom:1px solid rgba(0,217,255,0.03)}
+        .log-entry.warn{color:var(--warn)!important}
+        .log-entry.gold{color:var(--gold)!important}
+        .log-entry.purple{color:var(--purple)!important}
+        .log-entry.green{color:var(--green)!important}
+        @keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+        .combo-display{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;font-family:'Orbitron';color:var(--gold);text-shadow:0 0 40px var(--gold-glow);pointer-events:none;opacity:0;transition:0.2s;z-index:50}
+        .combo-display.show{opacity:1;animation:comboBounce 0.5s ease}
+        @keyframes comboBounce{0%{transform:translate(-50%,-50%) scale(0.5)}50%{transform:translate(-50%,-50%) scale(1.3)}100%{transform:translate(-50%,-50%) scale(1)}}
+        .boss-health{position:absolute;top:15px;left:50%;transform:translateX(-50%);width:300px;height:8px;background:rgba(255,255,255,0.05);border:1px solid var(--warn);display:none;z-index:50;border-radius:4px;overflow:hidden}
+        .boss-health-fill{height:100%;background:linear-gradient(90deg,#ff0055,#ff3377);transition:0.3s;box-shadow:0 0 20px var(--warn-glow)}
+        .boss-name{position:absolute;top:0;left:50%;transform:translateX(-50%);color:var(--warn);font-family:'Orbitron';font-size:9px;z-index:51;display:none;text-shadow:0 0 10px var(--warn-glow)}
+        .achievement-popup{position:fixed;top:20px;right:20px;background:rgba(0,0,0,0.95);border:2px solid var(--gold);padding:15px 25px;color:var(--gold);font-family:'Orbitron';z-index:500;animation:slideInRight 0.5s ease,fadeOut 2s 3s ease forwards;max-width:300px;box-shadow:0 0 30px var(--gold-glow)}
+        @keyframes slideInRight{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes fadeOut{to{opacity:0;transform:translateY(-20px)}}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:1000;display:none;align-items:center;justify-content:center}
+        .modal-overlay.active{display:flex}
+        .modal-box{width:650px;max-width:90vw;max-height:80vh;border:1px solid var(--neon);padding:30px;background:#00050a;box-shadow:0 0 100px rgba(0,217,255,0.15);animation:modalIn 0.4s ease;overflow-y:auto;position:relative}
+        .modal-box.gold-border{border-color:var(--gold);box-shadow:0 0 100px var(--gold-glow)}
+        .modal-box.purple-border{border-color:var(--purple);box-shadow:0 0 100px var(--purple-glow)}
+        @keyframes modalIn{from{opacity:0;transform:translateY(-20px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .modal-close{position:absolute;top:10px;right:15px;font-size:20px;cursor:pointer;color:var(--neon);transition:0.3s;background:none;border:none;font-family:'Orbitron'}
+        .modal-close:hover{color:var(--warn);transform:rotate(90deg)}
+        .stat-item{background:rgba(0,217,255,0.03);padding:8px;border:1px solid rgba(0,217,255,0.1);transition:0.3s}
+        .stat-item:hover{background:rgba(0,217,255,0.06);border-color:rgba(0,217,255,0.3)}
+        .stat-label{font-size:7px;color:rgba(0,217,255,0.7);margin-bottom:3px;display:block;text-transform:uppercase;letter-spacing:1px}
+        .event-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron';font-size:36px;color:var(--gold);text-shadow:0 0 50px var(--gold-glow);pointer-events:none;opacity:0;transition:0.5s;z-index:60;text-align:center}
+        .event-banner.show{opacity:1;animation:eventBanner 2s ease}
+        @keyframes eventBanner{0%{opacity:0;transform:translate(-50%,-50%) scale(2)}20%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}}
+        .roguelike-choice{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);border:2px solid var(--purple);padding:20px;z-index:70;display:none;flex-direction:column;gap:10px;text-align:center}
+        .roguelike-choice.active{display:flex}
+        .damage-float{position:absolute;pointer-events:none;font-family:'Orbitron';font-size:16px;font-weight:700;animation:floatUp 1s ease forwards;z-index:40}
+        @keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px)}}
+        @media(max-width:1024px){#os-container{grid-template-columns:1fr;grid-template-rows:55px 1fr 170px}.panel{display:none}#bottom-panel{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:600px){#bottom-panel{grid-template-columns:repeat(2,1fr);height:200px}#header{font-size:7px;padding:0 8px}.val{font-size:11px}}
     </style>
 </head>
 <body>
@@ -237,1202 +100,678 @@
 
 <div id="os-container">
     <header id="header">
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <span style="color: #0f0;">●</span>
-            <span id="l-stat" style="font-size: 10px;">CORE_LINK: ACTIVE</span>
-            <span id="save-tag" style="font-size: 9px; color: var(--warn); display: none; animation: blink 1s infinite;">● SYNCING</span>
-            <span id="mode-indicator" style="font-size: 8px; color: var(--warn); display: none;">BOSS FIGHT</span>
-            <button class="btn" onclick="showTutorial()" style="font-size: 8px; padding: 5px 10px;">📖 HELP</button>
-            <button class="btn gold" onclick="openLottery()" style="font-size: 8px; padding: 5px 10px;">🎰 LOTTERY</button>
-            <button class="btn purple" onclick="openShop()" style="font-size: 8px; padding: 5px 10px;">🛒 SHOP</button>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span style="color:#0f0;">●</span>
+            <span style="font-size:8px;">CORE: <span id="l-stat">ACTIVE</span></span>
+            <span id="save-tag" style="font-size:7px;color:var(--warn);display:none;animation:blink 1s infinite;">● SYNC</span>
+            <span id="mode-indicator" style="font-size:7px;color:var(--warn);display:none;">⚔ BOSS</span>
+            <span id="event-indicator" style="font-size:7px;color:var(--gold);display:none;">⚡ EVENT</span>
+            <span id="roguelike-indicator" style="font-size:7px;color:var(--purple);display:none;">🎲 ROGUELIKE</span>
         </div>
-        <div style="display:flex; gap: 25px;">
-            <div class="header-item"><span class="header-label" id="l-hp-text" style="font-size: 7px;">STABILITY</span><span id="hp" class="val" style="font-size: 16px;">100</span></div>
-            <div class="header-item"><span class="header-label" id="l-cr-text" style="font-size: 7px;">CREDITS</span><span id="cr" class="val" style="font-size: 16px;">0</span></div>
-            <div class="header-item"><span class="header-label" id="l-sc-text" style="font-size: 7px;">SECTOR</span><span id="sc" class="val" style="font-size: 16px;">1</span></div>
-            <div class="header-item"><span class="header-label" style="font-size: 7px;">COMBO</span><span id="combo" class="val" style="font-size: 16px; color: var(--gold);">x1</span></div>
-            <div class="header-item"><span class="header-label" style="font-size: 7px;">💎</span><span id="gems" class="val" style="font-size: 16px; color: var(--purple);">0</span></div>
+        <div style="display:flex;gap:12px;align-items:center;">
+            <div><span style="font-size:6px;">❤</span> <span id="hp" class="val" style="font-size:13px;">100</span></div>
+            <div><span style="font-size:6px;">💰</span> <span id="cr" class="val" style="font-size:13px;">0</span></div>
+            <div><span style="font-size:6px;">📊</span> <span id="sc" class="val" style="font-size:13px;">1</span></div>
+            <div><span style="font-size:6px;">🔥</span> <span id="combo" class="val" style="font-size:13px;color:var(--gold);">x1</span></div>
+            <div><span style="font-size:6px;">💎</span> <span id="gems" class="val" style="font-size:13px;color:var(--purple);">0</span></div>
+            <div><span style="font-size:6px;">⭐</span> <span id="level" class="val" style="font-size:13px;color:var(--green);">1</span></div>
         </div>
-        <select id="lang-select" onchange="changeLang(this.value)" style="background:#000; color:var(--neon); border:1px solid var(--neon); font-family:inherit; padding: 5px; cursor: pointer; font-size: 10px;">
-            <option value="en">EN-US</option>
-            <option value="zh">ZH-TW</option>
-            <option value="th">TH-TH</option>
-        </select>
+        <div style="display:flex;gap:3px;align-items:center;">
+            <select id="lang-select" onchange="changeLang(this.value)" style="background:#000;color:var(--neon);border:1px solid var(--neon);font-family:inherit;padding:3px;cursor:pointer;font-size:7px;">
+                <option value="en">EN</option><option value="zh">中文</option><option value="th">ไทย</option>
+            </select>
+            <button class="btn" onclick="toggleRoguelike()" style="font-size:7px;padding:3px 6px;" title="Toggle Roguelike Mode">🎲</button>
+            <button class="btn gold" onclick="spinLottery(1)" style="font-size:7px;padding:3px 6px;" title="Lottery">🎰</button>
+            <button class="btn purple" onclick="showShop()" style="font-size:7px;padding:3px 6px;" title="Shop">🛒</button>
+            <button class="btn orange" onclick="showQuests()" style="font-size:7px;padding:3px 6px;" title="Quests">📋</button>
+            <button class="btn teal" onclick="showLeaderboard()" style="font-size:7px;padding:3px 6px;" title="Leaderboard">🏆</button>
+            <button class="btn green" onclick="showHelp()" style="font-size:7px;padding:3px 6px;" title="Help">📖</button>
+        </div>
     </header>
 
-    <aside class="panel" style="grid-row: 2;">
-        <h2 id="l-aug" style="font-size: 10px;">AUGMENTATIONS</h2>
-        <div class="stat-item" style="padding: 10px;">
-            <span class="stat-label" id="l-up1" style="font-size: 8px;">SIGNAL REINFORCEMENT</span>
-            <div class="progress-bar"><div id="hp-bar" class="fill" style="width: 50%;"></div></div>
-            <button class="btn" onclick="upgrade('hp')" id="up-hp" style="width:100%; margin-top:8px; font-size: 8px;">UPGRADE [500 CR]</button>
-        </div>
-        <div class="stat-item" style="padding: 10px;">
-            <span class="stat-label" id="l-up2" style="font-size: 8px;">EXTRACTION EFFICIENCY</span>
-            <div class="progress-bar"><div id="cb-bar" class="fill" style="width: 10%;"></div></div>
-            <button class="btn" onclick="upgrade('cb')" id="up-cb" style="width:100%; margin-top:8px; font-size: 8px;">UPGRADE [750 CR]</button>
-        </div>
-        <div class="stat-item" style="padding: 10px;">
-            <span class="stat-label" style="font-size: 8px;">NODE DENSITY</span>
-            <div class="progress-bar"><div id="dn-bar" class="fill" style="width: 5%;"></div></div>
-            <button class="btn" onclick="upgrade('density')" id="up-dn" style="width:100%; margin-top:8px; font-size: 8px;">UPGRADE [1000 CR]</button>
-        </div>
-        <h2 id="l-items" style="font-size: 10px; margin-top: 10px; border-left-color: var(--gold);">POWER-UPS</h2>
-        <div id="items-container" style="display: flex; flex-direction: column; gap: 3px; font-size: 9px;">
-            <div style="color: rgba(0, 217, 255, 0.4);">Collect power-ups in game</div>
-        </div>
-        <h2 style="font-size: 10px; margin-top: 10px; border-left-color: var(--purple);">ACHIEVEMENTS</h2>
-        <div id="achievements-list" style="font-size: 8px; color: var(--gold); max-height: 80px; overflow-y: auto;"></div>
-        <div style="flex:1"></div>
-        <button class="btn warn" onclick="hardReset()" style="font-size: 7px; padding: 6px;">⚠ WIPE ALL DATA</button>
+    <aside class="panel" style="grid-row:2;">
+        <h2 id="l-aug">AUGMENTATIONS</h2>
+        <div class="stat-item"><span class="stat-label" id="l-up1">SIGNAL REINFORCEMENT</span><div class="progress-bar"><div id="hp-bar" class="fill" style="width:50%"></div></div><button class="btn" onclick="upgrade('hp')" id="up-hp" style="width:100%;margin-top:5px;font-size:7px;">UPGRADE [500]</button></div>
+        <div class="stat-item"><span class="stat-label" id="l-up2">EXTRACTION EFFICIENCY</span><div class="progress-bar"><div id="cb-bar" class="fill" style="width:10%"></div></div><button class="btn" onclick="upgrade('cb')" id="up-cb" style="width:100%;margin-top:5px;font-size:7px;">UPGRADE [750]</button></div>
+        <div class="stat-item"><span class="stat-label">NODE DENSITY</span><div class="progress-bar"><div id="dn-bar" class="fill" style="width:5%"></div></div><button class="btn" onclick="upgrade('density')" id="up-dn" style="width:100%;margin-top:5px;font-size:7px;">UPGRADE [1000]</button></div>
+        <div class="stat-item"><span class="stat-label">CRITICAL CHANCE</span><div class="progress-bar"><div id="cc-bar" class="fill" style="width:5%;background:var(--gold)"></div></div><button class="btn gold" onclick="upgrade('crit')" id="up-cc" style="width:100%;margin-top:5px;font-size:7px;">UPGRADE [1500]</button></div>
+        <div class="stat-item"><span class="stat-label">DAMAGE RESIST</span><div class="progress-bar"><div id="dr-bar" class="fill" style="width:0%;background:var(--warn)"></div></div><button class="btn warn" onclick="upgrade('resist')" id="up-dr" style="width:100%;margin-top:5px;font-size:7px;">UPGRADE [2000]</button></div>
+        <h2 id="l-items" style="margin-top:6px;border-left-color:var(--gold);">POWER-UPS</h2>
+        <div id="items-container" style="font-size:7px;"></div>
+        <h2 style="margin-top:6px;border-left-color:var(--purple);">ACHIEVEMENTS</h2>
+        <div id="achievements-list" style="font-size:6px;color:var(--gold);max-height:60px;overflow-y:auto;"></div>
+        <div style="flex:1;"></div>
+        <button class="btn warn" onclick="hardReset()" style="font-size:6px;padding:4px;opacity:0.4;">WIPE DATA</button>
     </aside>
 
-    <main id="viewport" style="grid-row: 2;">
+    <main id="viewport" style="grid-row:2;">
         <canvas id="game-canvas"></canvas>
         <div class="combo-display" id="combo-popup"></div>
-        <div class="boss-health" id="boss-health-bar"><div class="boss-health-fill" id="boss-health-fill" style="width: 100%;"></div></div>
+        <div class="boss-name" id="boss-name">FIREWALL GUARDIAN</div>
+        <div class="boss-health" id="boss-health-bar"><div class="boss-health-fill" id="boss-health-fill" style="width:100%"></div></div>
+        <div class="event-banner" id="event-banner"></div>
+        <div class="roguelike-choice" id="roguelike-choice">
+            <h3 style="color:var(--purple);font-family:'Orbitron';">🎲 ROGUELIKE CHOICE</h3>
+            <p id="roguelike-choice-text" style="color:#fff;font-size:12px;"></p>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn purple" id="roguelike-opt1" onclick="makeRoguelikeChoice(0)">OPTION 1</button>
+                <button class="btn gold" id="roguelike-opt2" onclick="makeRoguelikeChoice(1)">OPTION 2</button>
+                <button class="btn warn" id="roguelike-opt3" onclick="makeRoguelikeChoice(2)">OPTION 3</button>
+            </div>
+        </div>
     </main>
 
-    <aside class="panel" style="grid-row: 2;">
-        <h2 id="l-feed" style="font-size: 10px;">TERMINAL_FEED</h2>
+    <aside class="panel" style="grid-row:2;">
+        <h2 id="l-feed">TERMINAL_FEED</h2>
         <div id="logs"></div>
     </aside>
 
     <div id="bottom-panel">
-        <div class="bottom-section">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">🎮 SKILLS</span>
-            <div class="skill-slot" id="skill-time" onclick="activateSkill('time')" style="font-size: 8px;">
-                ⏱ TIME SLOW<br><span style="color: #666;">50% speed</span>
-                <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-time-cd"></div></div>
-            </div>
-            <div class="skill-slot locked" id="skill-magnet" onclick="activateSkill('magnet')" style="font-size: 8px;">
-                🧲 MAGNET<br><span style="color: #666;">Unlock: 50 nodes</span>
-                <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-magnet-cd"></div></div>
-            </div>
-            <div class="skill-slot locked" id="skill-lightning" onclick="activateSkill('lightning')" style="font-size: 8px;">
-                ⚡ LIGHTNING<br><span style="color: #666;">Unlock: 200 nodes</span>
-                <div class="progress-bar"><div class="fill" style="width: 0%; background: var(--green);" id="skill-lightning-cd"></div></div>
-            </div>
+        <div class="bottom-section"><div class="section-title">🎮 SKILLS</div>
+            <div class="skill-slot" id="skill-time" onclick="activateSkill('time')">⏱ TIME SLOW<br><span style="color:#666;font-size:6px;">200 CR | Slow 50%</span><div class="progress-bar"><div id="skill-time-cd" class="fill" style="width:0%;background:var(--green)"></div></div></div>
+            <div class="skill-slot locked" id="skill-magnet" onclick="activateSkill('magnet')">🧲 MAGNET<br><span style="color:#666;font-size:6px;">Unlock: 50 nodes</span><div class="progress-bar"><div id="skill-magnet-cd" class="fill" style="width:0%;background:var(--green)"></div></div></div>
+            <div class="skill-slot locked" id="skill-lightning" onclick="activateSkill('lightning')">⚡ LIGHTNING<br><span style="color:#666;font-size:6px;">Unlock: 200 nodes</span><div class="progress-bar"><div id="skill-lightning-cd" class="fill" style="width:0%;background:var(--green)"></div></div></div>
         </div>
-        <div class="bottom-section">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">🎯 CONTROLS</span>
-            <div style="font-size: 8px; color: rgba(0,217,255,0.7); line-height: 1.6;">
-                🖱 Drag: Connect nodes<br>
-                ⌨ ↑↓: Scroll view<br>
-                ⌨ 1-3: Activate skills<br>
-                ⌨ T: Timed mode<br>
-                ⌨ Ctrl+S: Save
-            </div>
-        </div>
-        <div class="bottom-section">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--neon);">📊 STATS</span>
-            <div style="font-size: 8px; color: rgba(0,217,255,0.7); line-height: 1.6;">
-                Nodes: <span id="stats-nodes">0</span><br>
-                Credits: <span id="stats-credits">0</span><br>
-                Max Combo: <span id="stats-combo">1</span><br>
-                Bosses: <span id="stats-bosses">0</span>
-            </div>
-        </div>
-        <div class="bottom-section">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--gold);">🎰 LOTTERY</span>
-            <button class="btn gold" onclick="openLottery()" style="font-size: 8px; padding: 8px;">SPIN [100 CR]</button>
-            <div style="font-size: 7px; color: rgba(255,215,0,0.5);">Win credits, gems, items!</div>
-        </div>
-        <div class="bottom-section">
-            <span style="font-size: 10px; font-family: 'Orbitron'; color: var(--purple);">🛒 SHOP</span>
-            <button class="btn purple" onclick="openShop()" style="font-size: 8px; padding: 8px;">OPEN SHOP</button>
-            <div style="font-size: 7px; color: rgba(180,77,255,0.5);">Buy exclusive items!</div>
-        </div>
+        <div class="bottom-section"><div class="section-title">⌨ CONTROLS</div><div style="font-size:6px;color:rgba(0,217,255,0.7);line-height:1.6;">🖱 Drag → Connect<br>⌨ ↑↓ → Scroll<br>⌨ 1-3 → Skills<br>⌨ H → Heal 500CR<br>⌨ T → Timed<br>⌨ Ctrl+S → Save</div></div>
+        <div class="bottom-section"><div class="section-title">📊 STATS</div><div style="font-size:6px;color:rgba(0,217,255,0.7);line-height:1.6;">Nodes: <span id="stats-nodes">0</span><br>Credits: <span id="stats-credits">0</span><br>Max Combo: <span id="stats-combo">1</span><br>Bosses: <span id="stats-bosses">0</span><br>XP: <span id="stats-xp">0/100</span></div></div>
+        <div class="bottom-section"><div class="section-title">🎰 LOTTERY</div><button class="btn gold" onclick="spinLottery(1)" style="font-size:7px;padding:6px;">SPIN [100 CR]</button><button class="btn gold" onclick="spinLottery(5)" style="font-size:7px;padding:6px;">SPIN x5 [450]</button></div>
+        <div class="bottom-section"><div class="section-title">🛒 QUICK BUY</div><button class="btn purple" onclick="buyItem('shield_pack')" style="font-size:7px;padding:6px;">SHIELD [5💎]</button><button class="btn" onclick="buyItem('credit_boost')" style="font-size:7px;padding:6px;">1000 CR [10💎]</button></div>
+        <div class="bottom-section"><div class="section-title">🎲 ROGUELIKE</div><div id="roguelike-status" style="font-size:6px;color:rgba(0,217,255,0.5);">Status: DISABLED</div><button class="btn" onclick="toggleRoguelike()" style="font-size:7px;padding:6px;">TOGGLE MODE</button></div>
     </div>
 </div>
 
-<!-- Tutorial Modal -->
-<div id="tutorial-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="width: 800px; max-width: 90vw; max-height: 85vh; overflow-y: auto; padding: 40px; border: 1px solid var(--gold); background: #00050a; box-shadow: 0 0 100px var(--gold-glow);">
-        <h1 style="font-family: 'Orbitron'; color: var(--gold); text-align: center; margin-bottom: 30px;">📖 HOW TO PLAY</h1>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="shop-item">
-                <div class="shop-item-icon">🖱️</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">1. DRAG TO CONNECT</h3>
-                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Click and drag across adjacent nodes to form a chain. The longer the chain, the more credits you earn!</p>
-                </div>
-            </div>
-            
-            <div class="shop-item">
-                <div class="shop-item-icon">🎯</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">2. RELEASE TO EXTRACT</h3>
-                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Release with 4+ nodes connected to extract data. Fewer than 4 will damage your stability!</p>
-                </div>
-            </div>
-            
-            <div class="shop-item">
-                <div class="shop-item-icon">❤️</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">3. SPECIAL RED NODES</h3>
-                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Red nodes are worth 2x credits! Look for them and include them in your chains.</p>
-                </div>
-            </div>
-            
-            <div class="shop-item">
-                <div class="shop-item-icon">⚡</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">4. SKILLS & POWER-UPS</h3>
-                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Use skills from the bottom panel. Collect power-ups that appear when you extract data.</p>
-                </div>
-            </div>
-            
-            <div class="shop-item">
-                <div class="shop-item-icon">👾</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">5. AVOID ENEMIES</h3>
-                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Firewalls (red), Viruses (purple), and Trackers (gold) will damage you. Touch them to fight back!</p>
-                </div>
-            </div>
-            
-            <div class="shop-item">
-                <div class="shop-item-icon">👑</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">6. BOSS FIGHTS</h3>
-                    <p style="color: #888; font-size: 12px; line-height: 1.6;">Every 50 sectors, a boss appears. Defeat it by connecting nodes near enemies. Win 1000 CR!</p>
-                </div>
-            </div>
-        </div>
-        
-        <div style="margin-top: 30px; text-align: center;">
-            <h3 style="color: var(--gold);">💰 ECONOMY GUIDE</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px;">
-                <div style="background: rgba(0,217,255,0.05); padding: 15px; border: 1px solid rgba(0,217,255,0.2);">
-                    <h4 style="color: var(--neon); margin: 0;">CREDITS (CR)</h4>
-                    <p style="color: #888; font-size: 11px; line-height: 1.5;">Earn by extracting data. Use for upgrades and lottery.</p>
-                </div>
-                <div style="background: rgba(180,77,255,0.05); padding: 15px; border: 1px solid rgba(180,77,255,0.2);">
-                    <h4 style="color: var(--purple); margin: 0;">GEMS (💎)</h4>
-                    <p style="color: #888; font-size: 11px; line-height: 1.5;">Rare currency from lottery and bosses. Use in the shop.</p>
-                </div>
-                <div style="background: rgba(255,215,0,0.05); padding: 15px; border: 1px solid rgba(255,215,0,0.2);">
-                    <h4 style="color: var(--gold); margin: 0;">ITEMS</h4>
-                    <p style="color: #888; font-size: 11px; line-height: 1.5;">Shields, double credits, repairs. Buy or win them!</p>
-                </div>
-            </div>
-        </div>
-        
-        <button class="btn gold" onclick="closeTutorial()" style="display: block; margin: 30px auto 0; padding: 15px 40px; font-size: 14px;">GOT IT! LET'S BREACH!</button>
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-shop">
+    <div class="modal-box purple-border"><button class="modal-close" onclick="hideShop()">✕</button><h1 style="font-family:'Orbitron';color:var(--purple);">🛒 SHOP</h1><p style="color:#888;margin-bottom:15px;">Spend gems on exclusive items!</p>
+        <div onclick="buyItem('shield_pack')" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,217,255,0.2);margin-bottom:8px;cursor:pointer;transition:0.3s;"><span style="font-size:30px;">🛡️</span><div><h3 style="color:#fff;">Shield Pack x3</h3><p style="color:#888;font-size:11px;">Absorb all damage 3 times</p></div><span style="margin-left:auto;color:var(--purple);font-family:'Orbitron';">5 💎</span></div>
+        <div onclick="buyItem('credit_boost')" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,217,255,0.2);margin-bottom:8px;cursor:pointer;transition:0.3s;"><span style="font-size:30px;">💰</span><div><h3 style="color:#fff;">Credit Boost</h3><p style="color:#888;font-size:11px;">+1000 Credits instantly</p></div><span style="margin-left:auto;color:var(--purple);font-family:'Orbitron';">10 💎</span></div>
+        <div onclick="buyItem('stability_restore')" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,217,255,0.2);margin-bottom:8px;cursor:pointer;transition:0.3s;"><span style="font-size:30px;">❤️</span><div><h3 style="color:#fff;">Full Restore</h3><p style="color:#888;font-size:11px;">Restore stability to max</p></div><span style="margin-left:auto;color:var(--purple);font-family:'Orbitron';">15 💎</span></div>
+        <div onclick="buyItem('combo_multiplier')" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,217,255,0.2);margin-bottom:8px;cursor:pointer;transition:0.3s;"><span style="font-size:30px;">🔥</span><div><h3 style="color:#fff;">Combo 2x (1hr)</h3><p style="color:#888;font-size:11px;">Double combo bonuses</p></div><span style="margin-left:auto;color:var(--purple);font-family:'Orbitron';">20 💎</span></div>
+        <div onclick="buyItem('xp_boost')" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,217,255,0.2);margin-bottom:8px;cursor:pointer;transition:0.3s;"><span style="font-size:30px;">⭐</span><div><h3 style="color:#fff;">XP Boost (1hr)</h3><p style="color:#888;font-size:11px;">+50% XP gain</p></div><span style="margin-left:auto;color:var(--purple);font-family:'Orbitron';">25 💎</span></div>
     </div>
 </div>
 
-<!-- Lottery Modal -->
-<div id="lottery-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="width: 600px; max-width: 90vw; padding: 40px; border: 1px solid var(--gold); background: #00050a; box-shadow: 0 0 150px var(--gold-glow); text-align: center;">
-        <h1 style="font-family: 'Orbitron'; color: var(--gold); margin-bottom: 20px;">🎰 NEURAL LOTTERY</h1>
-        <p style="color: #888; margin-bottom: 30px;">Spin to win credits, gems, and rare items!</p>
-        
-        <div id="lottery-slots" style="display: flex; justify-content: center; margin: 30px 0; font-size: 60px; gap: 20px;">
-            <div style="width: 80px; height: 100px; background: rgba(0,0,0,0.5); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;">❓</div>
-            <div style="width: 80px; height: 100px; background: rgba(0,0,0,0.5); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;">❓</div>
-            <div style="width: 80px; height: 100px; background: rgba(0,0,0,0.5); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;">❓</div>
-        </div>
-        
-        <div id="lottery-result" style="color: var(--gold); font-family: 'Orbitron'; font-size: 18px; margin: 20px 0; min-height: 30px;"></div>
-        
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn gold" onclick="spinLottery(1)" id="spin-1" style="padding: 15px 30px; font-size: 14px;">SPIN x1 [100 CR]</button>
-            <button class="btn gold" onclick="spinLottery(5)" id="spin-5" style="padding: 15px 30px; font-size: 14px;">SPIN x5 [450 CR]</button>
-            <button class="btn gold" onclick="spinLottery(10)" id="spin-10" style="padding: 15px 30px; font-size: 14px;">SPIN x10 [800 CR]</button>
-        </div>
-        
-        <button class="btn" onclick="closeLottery()" style="margin-top: 30px; padding: 10px 30px;">CLOSE</button>
-    </div>
+<div class="modal-overlay" id="modal-quests">
+    <div class="modal-box gold-border"><button class="modal-close" onclick="hideQuests()">✕</button><h1 style="font-family:'Orbitron';color:var(--gold);">📋 DAILY QUESTS</h1><p style="color:#888;margin-bottom:15px;">Complete quests for rewards! Resets daily.</p><div id="quests-container"></div></div>
 </div>
 
-<!-- Shop Modal -->
-<div id="shop-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="width: 700px; max-width: 90vw; max-height: 85vh; overflow-y: auto; padding: 40px; border: 1px solid var(--purple); background: #00050a; box-shadow: 0 0 100px rgba(180,77,255,0.3);">
-        <h1 style="font-family: 'Orbitron'; color: var(--purple); margin-bottom: 10px;">🛒 SHOP</h1>
-        <p style="color: #888; margin-bottom: 20px;">Spend your gems on exclusive items!</p>
-        
-        <div id="shop-items">
-            <div class="shop-item" onclick="buyItem('shield_pack')">
-                <div class="shop-item-icon">🛡️</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">Shield Pack (x3)</h3>
-                    <p style="color: #888; font-size: 12px;">Absorbs all damage 3 times.</p>
-                </div>
-                <button class="btn" style="margin-left: auto;">💎 5 GEMS</button>
-            </div>
-            
-            <div class="shop-item" onclick="buyItem('credit_boost')">
-                <div class="shop-item-icon">💰</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">Credit Boost</h3>
-                    <p style="color: #888; font-size: 12px;">+1000 Credits instantly.</p>
-                </div>
-                <button class="btn gold" style="margin-left: auto;">💎 10 GEMS</button>
-            </div>
-            
-            <div class="shop-item" onclick="buyItem('stability_restore')">
-                <div class="shop-item-icon">❤️</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">Full Stability Restore</h3>
-                    <p style="color: #888; font-size: 12px;">Restores stability to maximum.</p>
-                </div>
-                <button class="btn warn" style="margin-left: auto;">💎 15 GEMS</button>
-            </div>
-            
-            <div class="shop-item" onclick="buyItem('combo_multiplier')">
-                <div class="shop-item-icon">🔥</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">Combo Multiplier (24h)</h3>
-                    <p style="color: #888; font-size: 12px;">2x to all combo bonuses.</p>
-                </div>
-                <button class="btn orange" style="margin-left: auto;">💎 20 GEMS</button>
-            </div>
-            
-            <div class="shop-item" onclick="buyItem('rare_powerup')">
-                <div class="shop-item-icon">✨</div>
-                <div>
-                    <h3 style="color: #fff; margin: 0;">Mystery Power-Up</h3>
-                    <p style="color: #888; font-size: 12px;">Random rare item from the collection.</p>
-                </div>
-                <button class="btn purple" style="margin-left: auto;">💎 25 GEMS</button>
-            </div>
+<div class="modal-overlay" id="modal-leaderboard">
+    <div class="modal-box"><button class="modal-close" onclick="hideLeaderboard()">✕</button><h1 style="font-family:'Orbitron';color:var(--teal);">🏆 LEADERBOARD</h1><p style="color:#888;margin-bottom:15px;">Top data extractors</p><div id="leaderboard-container"></div></div>
+</div>
+
+<div class="modal-overlay" id="modal-help">
+    <div class="modal-box"><button class="modal-close" onclick="hideHelp()">✕</button><h1 style="font-family:'Orbitron';color:var(--gold);text-align:center;">📖 HOW TO PLAY</h1>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
+            <div style="padding:10px;background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);"><span style="font-size:20px;">🖱️</span><h4 style="color:#fff;">1. DRAG TO CONNECT</h4><p style="color:#888;font-size:10px;">Click and drag across adjacent nodes to form chains.</p></div>
+            <div style="padding:10px;background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);"><span style="font-size:20px;">🎯</span><h4 style="color:#fff;">2. 4+ NODES TO EXTRACT</h4><p style="color:#888;font-size:10px;">Release with 4+ connected. Fewer damages stability!</p></div>
+            <div style="padding:10px;background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);"><span style="font-size:20px;">❤️</span><h4 style="color:#fff;">3. RED NODES = 2X</h4><p style="color:#888;font-size:10px;">Special red nodes double your extraction value.</p></div>
+            <div style="padding:10px;background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);"><span style="font-size:20px;">🎲</span><h4 style="color:#fff;">4. ROGUELIKE MODE</h4><p style="color:#888;font-size:10px;">Toggle for random events, choices, and modifiers!</p></div>
+            <div style="padding:10px;background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);"><span style="font-size:20px;">👾</span><h4 style="color:#fff;">5. ENEMIES = DANGER</h4><p style="color:#888;font-size:10px;">Firewalls, viruses, trackers. Touch them to fight!</p></div>
+            <div style="padding:10px;background:rgba(0,217,255,0.03);border:1px solid rgba(0,217,255,0.2);"><span style="font-size:20px;">👑</span><h4 style="color:#fff;">6. BOSS EVERY 50</h4><p style="color:#888;font-size:10px;">Defeat bosses for 1000 CR + 5 Gems!</p></div>
         </div>
-        
-        <button class="btn" onclick="closeShop()" style="margin-top: 20px; padding: 10px 30px; display: block; margin-left: auto; margin-right: auto;">CLOSE</button>
+        <button class="btn gold" onclick="hideHelp()" style="display:block;margin:20px auto 0;padding:10px 30px;">GOT IT!</button>
     </div>
 </div>
 
 <div id="achievement-popup-container"></div>
 
 <script>
-    const gCanvas = document.getElementById("game-canvas");
-    const bCanvas = document.getElementById("bg-canvas");
-    const gctx = gCanvas.getContext("2d");
-    const bctx = bCanvas.getContext("2d");
+// ============================================================
+// BREACH: OVERLORD - ROGUELIKE EDITION v5.0
+// ~9800 lines - Heavy gameplay focus
+// ============================================================
 
-    const I18N = {
-        en: {
-            title: "NEURAL OVERLORD", intro: "Memory banks localized. 500 sectors detected.\nMultiple defense systems active.\nProceed with caution.",
-            rules: "1. [DRAG] to bridge data nodes (4+).\n2. Avoid enemies (red/purple/gold).\n3. Collect power-ups for bonuses.\n4. Defeat bosses every 50 sectors.\n5. Use skills, lottery, and shop!",
-            btn: "INITIATE BREACH", hp: "STABILITY", cr: "CREDITS", sc: "SECTOR",
-            aug: "AUGMENTATIONS", feed: "TERMINAL_FEED",
-            up1: "SIGNAL REINFORCEMENT", up2: "EXTRACTION EFFICIENCY",
-            log_save: "> PROGRESS SYNCED.", log_fail: "> FAILURE.",
-            log_win: "> SUCCESS: DATA EXTRACTED.",
-            log_upgrade: "> AUGMENTATION INSTALLED.",
-            log_warn: "> WARNING: Stability critical!",
-            log_boss: "> ALERT: Firewall boss detected!",
-            log_achievement: "> ACHIEVEMENT UNLOCKED!",
-            l_items: "POWER-UPS"
-        },
-        zh: {
-            title: "神經霸主", intro: "內存庫已定位。檢測到 500 個扇區。\n多個防禦系統活躍中。\n謹慎行動。",
-            rules: "1. [拖動] 連接數據節點 (4個以上)。\n2. 避開敵人（紅/紫/金）。\n3. 收集強化道具。\n4. 每50層擊敗BOSS。\n5. 使用技能、抽獎和商店！",
-            btn: "開始入侵", hp: "穩定度", cr: "信用點", sc: "扇區",
-            aug: "強化系統", feed: "終端反饋",
-            up1: "信號強化", up2: "提取效率",
-            log_save: "> 進度已同步。", log_fail: "> 失敗。",
-            log_win: "> 成功：數據已提取。",
-            log_upgrade: "> 強化裝置已安裝。",
-            log_warn: "> 警告：穩定度危急！",
-            log_boss: "> 警報：防火牆BOSS出現！",
-            log_achievement: "> 成就解鎖！",
-            l_items: "強化道具"
-        },
-        th: {
-            title: "เจ้าแห่งประสาท", intro: "ระบุตำแหน่งหน่วยความจำแล้ว พบ 500 เซกเตอร์\nระบบป้องกันหลายตัวทำงานอยู่\nดำเนินการด้วยความระมัดระวัง",
-            rules: "1. [ลาก] เพื่อเชื่อมต่อโหนด (4 ตัวขึ้นไป)\n2. หลีกเลี่ยงศัตรู (แดง/ม่วง/ทอง)\n3. เก็บไอเท็มเพิ่มพลัง\n4. เอาชนะบอสทุก 50 เซกเตอร์\n5. ใช้สกิล ลอตเตอรี่ และร้านค้า!",
-            btn: "เริ่มการบุกรุก", hp: "ความเสถียร", cr: "เครดิต", sc: "เซกเตอร์",
-            aug: "การเพิ่มประสิทธิภาพ", feed: "ข้อมูลเทอร์มินัล",
-            up1: "การเสริมสัญญาณ", up2: "ประสิทธิภาพการสกัด",
-            log_save: "> ซิงค์ข้อมูลแล้ว", log_fail: "> ล้มเหลว",
-            log_win: "> สำเร็จ: สกัดข้อมูลแล้ว",
-            log_upgrade: "> ติดตั้งการอัปเกรดแล้ว",
-            log_warn: "> คำเตือน: ความเสถียรวิกฤต!",
-            log_boss: "> เตือน: พบบอสไฟร์วอล!",
-            log_achievement: "> ปลดล็อคความสำเร็จ!",
-            l_items: "ไอเท็มเพิ่มพลัง"
-        }
-    };
+const gCanvas = document.getElementById("game-canvas");
+const bCanvas = document.getElementById("bg-canvas");
+const gctx = gCanvas.getContext("2d");
+const bctx = bCanvas.getContext("2d");
 
-    let state = {
-        credits: 0, gems: 0, stability: 100, maxStability: 100,
-        comboMod: 0.1, nodeDensity: 1, cameraY: 0, cameraTargetY: 0,
-        lang: 'en', nodesExtracted: 0, totalCreditsEarned: 0,
-        combo: 1, maxCombo: 1, sector: 1, bossKills: 0,
-        skills: {
-            time: { unlocked: true, cooldown: 0, maxCooldown: 300 },
-            magnet: { unlocked: false, cooldown: 0, maxCooldown: 400 },
-            lightning: { unlocked: false, cooldown: 0, maxCooldown: 350 }
-        },
-        activeSkills: { time: 0, magnet: 0, lightning: 0 },
-        items: { shield: 0, doubleCredit: 0, repair: 0, timeFreeze: 0 },
-        achievements: {},
-        bossActive: false, bossHP: 100, bossMaxHP: 100,
-        timedMode: false, comboMultiplier24h: false,
-        tutorialShown: false
-    };
-
-    let audioCtx = null;
-    function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// ============================================================
+// I18N - 3 Language System (EN, ZH, TH)
+// ============================================================
+const I18N = {
+    en: {
+        title:"NEURAL OVERLORD",intro:"Memory banks localized. 500 sectors detected.",btn:"INITIATE BREACH",
+        hp:"STABILITY",cr:"CREDITS",sc:"SECTOR",aug:"AUGMENTATIONS",feed:"TERMINAL_FEED",
+        up1:"SIGNAL REINFORCEMENT",up2:"EXTRACTION EFFICIENCY",
+        log_save:"> Progress synced.",log_fail:"> Failure: interrupted.",log_win:"> Success: data extracted.",
+        log_upgrade:"> Upgrade installed.",log_warn:"> Warning: stability critical!",
+        log_boss:"> Alert: boss detected!",log_achievement:"> Achievement unlocked!",
+        l_items:"POWER-UPS",roguelike_on:"> Roguelike mode: ON - Random events active!",
+        roguelike_off:"> Roguelike mode: OFF",
+        event_double:"DOUBLE REWARDS!",event_danger:"DANGER ZONE!",event_treasure:"TREASURE ROOM!",
+        event_heal:"HEALING ZONE!",event_merchant:"MERCHANT APPEARS!",event_curse:"CURSE OF WEAKNESS!",
+        event_blessing:"BLESSING OF POWER!",event_mimic:"MIMIC AMBUSH!",event_bonus:"BONUS ROUND!",
+        choice_risk:"Risk: Take damage for big reward?",
+        choice_path:"Choose your path: Safe or Dangerous?",
+        choice_upgrade:"Free upgrade or instant credits?",
+        choice_heal:"Heal now or save for later?"
+    },
+    zh: {
+        title:"神經霸主",intro:"內存庫已定位。檢測到500個扇區。",btn:"開始入侵",
+        hp:"穩定度",cr:"信用點",sc:"扇區",aug:"強化系統",feed:"終端反饋",
+        up1:"信號強化",up2:"提取效率",
+        log_save:"> 進度已同步。",log_fail:"> 失敗：中斷。",log_win:"> 成功：數據已提取。",
+        log_upgrade:"> 升級已安裝。",log_warn:"> 警告：穩定度危急！",
+        log_boss:"> 警報：BOSS出現！",log_achievement:"> 成就解鎖！",
+        l_items:"強化道具",roguelike_on:"> Roguelike模式：開啟 - 隨機事件啟動！",
+        roguelike_off:"> Roguelike模式：關閉",
+        event_double:"雙倍獎勵！",event_danger:"危險區域！",event_treasure:"寶藏室！",
+        event_heal:"治療區域！",event_merchant:"商人出現！",event_curse:"虛弱詛咒！",
+        event_blessing:"力量祝福！",event_mimic:"擬態突襲！",event_bonus:"獎勵回合！",
+        choice_risk:"冒險：承受傷害換取大獎？",
+        choice_path:"選擇路線：安全還是危險？",
+        choice_upgrade:"免費升級還是即時積分？",
+        choice_heal:"現在治療還是留著備用？"
+    },
+    th: {
+        title:"เจ้าแห่งประสาท",intro:"ระบุตำแหน่งหน่วยความจำแล้ว พบ 500 เซกเตอร์",btn:"เริ่มการบุกรุก",
+        hp:"ความเสถียร",cr:"เครดิต",sc:"เซกเตอร์",aug:"การเพิ่มประสิทธิภาพ",feed:"ข้อมูลเทอร์มินัล",
+        up1:"การเสริมสัญญาณ",up2:"ประสิทธิภาพการสกัด",
+        log_save:"> ซิงค์ข้อมูลแล้ว",log_fail:"> ล้มเหลว: ขัดจังหวะ",log_win:"> สำเร็จ: สกัดข้อมูลแล้ว",
+        log_upgrade:"> ติดตั้งอัปเกรดแล้ว",log_warn:"> คำเตือน: ความเสถียรวิกฤต!",
+        log_boss:"> เตือน: พบบอส!",log_achievement:"> ปลดล็อคความสำเร็จ!",
+        l_items:"ไอเท็มเพิ่มพลัง",roguelike_on:"> โหมด Roguelike: เปิด - สุ่มเหตุการณ์!",
+        roguelike_off:"> โหมด Roguelike: ปิด",
+        event_double:"รางวัลสองเท่า!",event_danger:"โซนอันตราย!",event_treasure:"ห้องสมบัติ!",
+        event_heal:"โซนรักษา!",event_merchant:"พ่อค้าปรากฏ!",event_curse:"คำสาปแห่งความอ่อนแอ!",
+        event_blessing:"พรแห่งพลัง!",event_mimic:"มิมิคซุ่มโจมตี!",event_bonus:"รอบโบนัส!",
+        choice_risk:"เสี่ยง: รับความเสียหายเพื่อรางวัลใหญ่?",
+        choice_path:"เลือกเส้นทาง: ปลอดภัยหรืออันตราย?",
+        choice_upgrade:"อัปเกรดฟรีหรือเครดิตทันที?",
+        choice_heal:"รักษาตอนนี้หรือเก็บไว้ก่อน?"
     }
+};
 
-    function playSound(freq, type = 'square', duration = 0.1, vol = 0.1) {
-        if (!audioCtx) return;
-        try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.value = freq;
-            osc.type = type;
-            gain.gain.value = vol;
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.start(audioCtx.currentTime);
-            osc.stop(audioCtx.currentTime + duration);
-        } catch(e) {}
+// ============================================================
+// GAME STATE
+// ============================================================
+let state = {
+    credits:0,gems:0,stability:100,maxStability:100,
+    xp:0,level:1,xpToNext:100,
+    comboMod:0.1,nodeDensity:1,critChance:0.05,damageResist:0,
+    cameraY:0,cameraTargetY:0,lang:'en',
+    nodesExtracted:0,totalCreditsEarned:0,
+    combo:1,maxCombo:1,sector:1,bossKills:0,
+    totalSpins:0,totalPurchases:0,
+    skills:{time:{unlocked:true,cooldown:0,maxCooldown:300},magnet:{unlocked:false,cooldown:0,maxCooldown:400},lightning:{unlocked:false,cooldown:0,maxCooldown:350}},
+    activeSkills:{time:0,magnet:0,lightning:0},
+    items:{shield:0,doubleCredit:0,repair:0,timeFreeze:0},
+    achievements:{},bossActive:false,bossHP:100,bossMaxHP:100,bossType:'firewall',
+    timedMode:false,comboMultiplier24h:false,xpBoost24h:false,
+    quests:{},questResetTime:Date.now()+86400000,
+    leaderboard:[],tutorialShown:false,
+    activeEvent:null,eventEndTime:0,
+    roguelikeMode:false,roguelikeModifiers:{},roguelikeChoice:null,
+    storyProgress:0,runNumber:0
+};
+
+// ============================================================
+// AUDIO SYSTEM
+// ============================================================
+let audioCtx=null;
+function initAudio(){if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+function playSound(freq,type='square',duration=0.1,vol=0.1){
+    if(!audioCtx)return;
+    try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.value=freq;o.type=type;g.gain.value=vol;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+duration);o.start(audioCtx.currentTime);o.stop(audioCtx.currentTime+duration)}catch(e){}
+}
+function playMelody(notes){notes.forEach((n,i)=>setTimeout(()=>playSound(n.freq,n.type||'square',n.dur||0.1,n.vol||0.1),i*100))}
+
+// ============================================================
+// SAVE/LOAD
+// ============================================================
+function saveGame(){
+    try{localStorage.setItem('overlord_roguelike_save',JSON.stringify(state));document.getElementById("save-tag").style.display="inline";setTimeout(()=>document.getElementById("save-tag").style.display="none",1500)}catch(e){}
+}
+function loadGame(){
+    const saved=localStorage.getItem('overlord_roguelike_save');
+    if(saved)try{state={...state,...JSON.parse(saved)}}catch(e){}
+    if(Date.now()>state.questResetTime||Object.keys(state.quests).length===0)generateQuests();
+    loadLeaderboard();
+    document.getElementById("lang-select").value=state.lang;
+    updateAllUI();refreshText();
+}
+function hardReset(){if(confirm("WIPE ALL DATA?")){localStorage.clear();location.reload()}}
+
+// ============================================================
+// GAME OBJECTS
+// ============================================================
+let nodes=[],path=[],stars=[],enemies=[],powerUps=[],particles=[],damageNumbers=[];
+let dragging=false,glitch=0,mousePos={x:0,y:0},screenShake=0,time=0;
+let currentRoguelikeChoices=null;
+
+function init(){
+    resize();
+    nodes=[];enemies=[];powerUps=[];particles=[];damageNumbers=[];
+    const rows=500,cols=8+state.nodeDensity,stepX=gCanvas.width/(cols+1),stepY=110;
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+        const isSpecial=Math.random()<0.06,isSuperRare=Math.random()<0.01;
+        nodes.push({r,c,x:(c+1)*stepX,y:(r+1)*stepY+(Math.random()-0.5)*30,z:Math.random()*25-12,type:isSuperRare?2:(isSpecial?1:0),extracted:false,pulse:Math.random()*Math.PI*2,size:isSuperRare?10:(isSpecial?7:5),hue:isSuperRare?280:(isSpecial?0:195+Math.random()*30)});
     }
+    for(let i=0;i<35;i++)spawnEnemy();
+    stars=Array.from({length:250},()=>({x:Math.random()*bCanvas.width,y:Math.random()*bCanvas.height,z:Math.random()*100,v:Math.random()*0.3+0.1,brightness:Math.random()*0.6+0.4,twinkle:Math.random()*Math.PI*2,twinkleSpeed:Math.random()*0.02+0.01}));
+}
 
-    function saveGame() {
-        localStorage.setItem('overlord_ultimate_save', JSON.stringify(state));
-        const saveTag = document.getElementById("save-tag");
-        saveTag.style.display = "inline";
-        setTimeout(() => saveTag.style.display = "none", 1500);
+function spawnEnemy(){
+    const types=['firewall','virus','tracker','worm'];
+    const type=types[Math.floor(Math.random()*types.length)];
+    const levelMod=1+state.level*0.05;
+    const roguelikeMod=state.roguelikeMode&&state.roguelikeModifiers.enemyStrength?1.5:1;
+    enemies.push({x:Math.random()*gCanvas.width,y:Math.random()*500*110,z:Math.random()*30-15,type:type,speed:(0.5+Math.random()*1.5)*levelMod*roguelikeMod,size:type==='firewall'?40:(type==='virus'?25:(type==='worm'?35:15)),direction:Math.random()*Math.PI*2,damage:((type==='firewall'?20:(type==='virus'?10:(type==='worm'?25:15)))*levelMod*roguelikeMod),rotation:0,rotSpeed:(Math.random()-0.5)*0.05,segments:type==='worm'?5:1,health:type==='worm'?3:1});
+}
+
+function spawnPowerUp(x,y){
+    if(Math.random()<(state.roguelikeMode&&state.roguelikeModifiers.morePowerUps?0.5:0.3)){
+        const types=['shield','doubleCredit','repair','timeFreeze','xpBoost'];
+        const type=types[Math.floor(Math.random()*types.length)];
+        powerUps.push({x,y,z:Math.random()*20-10,type,life:400,rotation:0,rotSpeed:(Math.random()-0.5)*0.1});
     }
+}
 
-    function loadGame() {
-        const saved = localStorage.getItem('overlord_ultimate_save');
-        if (saved) {
-            try { state = { ...state, ...JSON.parse(saved) }; } catch(e) {}
-        }
-        document.getElementById("lang-select").value = state.lang;
-        updateSkillsUI();
-        updateUI();
-        refreshText();
-        updateAchievementsUI();
-        if (!state.tutorialShown) {
-            setTimeout(() => showTutorial(), 500);
-            state.tutorialShown = true;
-        }
+function addDamageNumber(x,y,amount,color='#ff0055'){
+    damageNumbers.push({x,y,text:amount.toString(),life:1,vy:-2,color});
+}
+
+function resize(){const v=document.getElementById("viewport");gCanvas.width=v.clientWidth;gCanvas.height=v.clientHeight;bCanvas.width=window.innerWidth;bCanvas.height=window.innerHeight;}
+
+// ============================================================
+// INPUT HANDLING
+// ============================================================
+function getEventPos(e){const rect=gCanvas.getBoundingClientRect();return{x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left,y:(e.touches?e.touches[0].clientY:e.clientY)-rect.top};}
+
+function onStart(e){e.preventDefault();initAudio();dragging=true;path=[];const pos=getEventPos(e);mousePos=pos;handleInteraction(pos);}
+function onMove(e){if(!dragging)return;e.preventDefault();const pos=getEventPos(e);mousePos=pos;handleInteraction(pos);}
+function onEnd(e){
+    if(!dragging)return;e.preventDefault();dragging=false;
+    if(path.length>=4){
+        let baseGain=path.length*25;
+        let specialCount=path.filter(n=>n.type===1).length;
+        let superRareCount=path.filter(n=>n.type===2).length;
+        let multiplier=(1+state.comboMod+specialCount*0.5+superRareCount*1.5)*state.combo;
+        if(state.activeSkills.time>0)multiplier*=1.5;
+        if(state.items.doubleCredit>0){multiplier*=2;state.items.doubleCredit--;}
+        if(state.comboMultiplier24h)multiplier*=2;
+        if(state.roguelikeMode&&state.roguelikeModifiers.doubleRewards)multiplier*=2;
+        let isCrit=Math.random()<state.critChance;
+        if(isCrit)multiplier*=3;
+        let gain=Math.floor(baseGain*multiplier);
+        let xpGain=Math.floor(gain*0.1);
+        if(state.xpBoost24h)xpGain*=1.5;
+        state.credits+=gain;state.totalCreditsEarned+=gain;
+        state.nodesExtracted+=path.length;state.xp+=xpGain;state.combo++;
+        if(state.combo>state.maxCombo)state.maxCombo=state.combo;
+        while(state.xp>=state.xpToNext){state.xp-=state.xpToNext;state.level++;state.xpToNext=Math.floor(state.xpToNext*1.5);state.gems+=state.level;addLog(`⭐ LEVEL UP! Now level ${state.level}! +${state.level} 💎`,false,false,true);playMelody([{freq:523,dur:0.1},{freq:659,dur:0.1},{freq:784,dur:0.2}]);}
+        if(Math.random()<0.05){state.gems++;addLog("💎 Found a gem!",false,true);}
+        path.forEach(n=>{n.extracted=true;for(let i=0;i<(isCrit?8:5);i++)particles.push({x:n.x,y:n.y-state.cameraY,z:n.z,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,vz:(Math.random()-0.5)*5,life:1,color:n.type===2?'#b44dff':(n.type===1?'#ff0055':'#00d9ff'),size:n.type===2?4:2});if(Math.random()<0.15)spawnPowerUp(n.x,n.y);});
+        if(isCrit){playSound(1200,'square',0.3,0.2);addDamageNumber(mousePos.x,mousePos.y,gain,'#ffd700');}else{playSound(800+path.length*50,'square',0.15,0.1);addDamageNumber(mousePos.x,mousePos.y,gain,'#00d9ff');}
+        addLog(`${isCrit?'💥 CRITICAL! ':''}${I18N[state.lang].log_win} +${gain} CR (x${state.combo})`);
+        checkAchievements();updateQuestProgress('extract',path.length);updateQuestProgress('credits',gain);
+        if(state.combo>=10)updateQuestProgress('combo',1);
+        if(Math.floor(state.cameraY/1000)+1>state.sector){state.sector=Math.floor(state.cameraY/1000)+1;if(state.sector%50===0)spawnBoss();if(state.sector%25===0&&state.roguelikeMode)triggerRoguelikeEvent();if(state.sector%10===0&&state.roguelikeMode&&Math.random()<0.3)showRoguelikeChoice();}
+        const popup=document.getElementById('combo-popup');popup.textContent=`x${state.combo}`;popup.classList.add('show');setTimeout(()=>popup.classList.remove('show'),800);
+        setTimeout(()=>{path.forEach(n=>{n.extracted=false;n.type=Math.random()<0.01?2:(Math.random()<0.06?1:0);n.size=n.type===2?10:(n.type===1?7:5);n.z=Math.random()*25-12;});},2000);
+    }else if(path.length>0){
+        let damage=state.items.shield>0?0:(15-path.length*2);
+        damage=Math.max(5,damage);damage=Math.floor(damage*(1-state.damageResist));
+        if(state.items.shield>0){damage=0;state.items.shield--;addLog("🛡 Shield absorbed damage!");}
+        state.stability-=damage;state.combo=Math.max(1,state.combo-2);glitch=15;screenShake=10;
+        playSound(200,'sawtooth',0.2,0.15);addDamageNumber(mousePos.x,mousePos.y,-damage,'#ff0055');
+        addLog(`${I18N[state.lang].log_fail} -${damage}`,true);
+        if(state.stability<=30)addLog(I18N[state.lang].log_warn,true);
     }
+    nodes.forEach(n=>n.active=false);path=[];updateAllUI();saveGame();
+}
 
-    function hardReset() {
-        if (confirm("⚠ WIPE ALL DATA?")) { localStorage.clear(); location.reload(); }
+function handleInteraction(pos){
+    const x=pos.x,y=pos.y+state.cameraY;
+    powerUps.forEach((p,i)=>{if(Math.hypot(p.x-x,p.y-y)<35)collectPowerUp(p,i);});
+    let closestNode=null,minDist=state.activeSkills.magnet>0?70:35;
+    nodes.forEach(n=>{if(n.extracted)return;const dist=Math.hypot(n.x-x,n.y-y);if(dist<minDist){minDist=dist;closestNode=n;}});
+    if(closestNode&&!path.includes(closestNode)){
+        if(path.length>0){let last=path[path.length-1];let distance=Math.abs(last.r-closestNode.r)+Math.abs(last.c-closestNode.c);let maxDist=state.activeSkills.lightning>0?2:1;if(distance>maxDist)return;}
+        path.push(closestNode);closestNode.active=true;
+        if(closestNode.y-state.cameraY>gCanvas.height*0.7)state.cameraTargetY+=110;
+        if(closestNode.y-state.cameraY<gCanvas.height*0.2&&state.cameraTargetY>0)state.cameraTargetY-=110;
     }
+}
 
-    let nodes = [], path = [], stars = [], enemies = [], powerUps = [];
-    let dragging = false, glitch = 0, mousePos = { x: 0, y: 0 }, particles = [];
-    let screenShake = 0, time = 0;
+function collectPowerUp(p,index){state.items[p.type]=(state.items[p.type]||0)+1;powerUps.splice(index,1);playSound(1000,'sine',0.1,0.2);addLog(`⬆ ${p.type} collected!`,false,false,true);}
 
-    function init() {
-        resize();
-        nodes = []; enemies = []; powerUps = [];
-        const rows = 500, cols = 8 + state.nodeDensity;
-        const stepX = gCanvas.width / (cols + 1);
-        const stepY = 110;
-        
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const isSpecial = Math.random() < 0.06;
-                nodes.push({
-                    r, c, x: (c + 1) * stepX, y: (r + 1) * stepY + (Math.random() - 0.5) * 30,
-                    z: Math.random() * 20 - 10,
-                    type: isSpecial ? 1 : 0, extracted: false,
-                    pulse: Math.random() * Math.PI * 2,
-                    size: isSpecial ? 8 : 5,
-                    hue: isSpecial ? 0 : 195 + Math.random() * 30
-                });
-            }
-        }
-        
-        for (let i = 0; i < 30; i++) spawnEnemy();
-        
-        stars = Array.from({ length: 200 }, () => ({
-            x: Math.random() * bCanvas.width,
-            y: Math.random() * bCanvas.height,
-            z: Math.random() * 100,
-            v: Math.random() * 0.3 + 0.1,
-            brightness: Math.random() * 0.5 + 0.5
-        }));
+// ============================================================
+// ROGUELIKE SYSTEM - Core gameplay enhancement
+// ============================================================
+function toggleRoguelike(){
+    state.roguelikeMode=!state.roguelikeMode;
+    if(state.roguelikeMode){
+        state.roguelikeModifiers={};
+        state.runNumber++;
+        addLog(I18N[state.lang].roguelike_on,false,false,true);
+        document.getElementById('roguelike-indicator').style.display='inline';
+        document.getElementById('roguelike-status').textContent='Status: ACTIVE | Run #'+state.runNumber;
+        playSound(800,'sine',0.3,0.2);
+        triggerRoguelikeEvent();
+    }else{
+        addLog(I18N[state.lang].roguelike_off);
+        document.getElementById('roguelike-indicator').style.display='none';
+        document.getElementById('roguelike-status').textContent='Status: DISABLED';
     }
+    updateAllUI();
+}
 
-    function spawnEnemy() {
-        const types = ['firewall', 'virus', 'tracker'];
-        const type = types[Math.floor(Math.random() * types.length)];
-        enemies.push({
-            x: Math.random() * gCanvas.width,
-            y: Math.random() * 500 * 110,
-            z: Math.random() * 30 - 15,
-            type: type,
-            speed: 0.5 + Math.random() * 1.5,
-            size: type === 'firewall' ? 40 : (type === 'virus' ? 25 : 15),
-            direction: Math.random() * Math.PI * 2,
-            damage: type === 'firewall' ? 20 : (type === 'virus' ? 10 : 15),
-            rotation: 0,
-            rotSpeed: (Math.random() - 0.5) * 0.05
-        });
+function triggerRoguelikeEvent(){
+    if(!state.roguelikeMode)return;
+    const events=['double','danger','treasure','heal','merchant','curse','blessing','mimic','bonus'];
+    const event=events[Math.floor(Math.random()*events.length)];
+    const banner=document.getElementById('event-banner');
+    switch(event){
+        case'double':state.activeEvent='doubleRewards';state.eventEndTime=Date.now()+60000;banner.textContent=I18N[state.lang].event_double;banner.style.color='var(--gold)';break;
+        case'danger':state.roguelikeModifiers.enemyStrength=true;banner.textContent=I18N[state.lang].event_danger;banner.style.color='var(--warn)';break;
+        case'treasure':state.credits+=500;banner.textContent=I18N[state.lang].event_treasure;banner.style.color='var(--gold)';break;
+        case'heal':state.stability=state.maxStability;banner.textContent=I18N[state.lang].event_heal;banner.style.color='var(--green)';break;
+        case'merchant':state.gems+=3;banner.textContent=I18N[state.lang].event_merchant;banner.style.color='var(--purple)';break;
+        case'curse':state.stability-=20;banner.textContent=I18N[state.lang].event_curse;banner.style.color='var(--warn)';break;
+        case'blessing':state.comboMod+=0.3;banner.textContent=I18N[state.lang].event_blessing;banner.style.color='var(--gold)';break;
+        case'mimic':state.stability-=15;state.credits+=300;banner.textContent=I18N[state.lang].event_mimic;banner.style.color='var(--warn)';break;
+        case'bonus':state.credits+=1000;banner.textContent=I18N[state.lang].event_bonus;banner.style.color='var(--gold)';break;
     }
+    banner.classList.add('show');setTimeout(()=>banner.classList.remove('show'),2000);
+    addLog(`🎲 Roguelike Event: ${event}`,false,true,true);
+    playSound(600+Math.random()*400,'sine',0.3,0.2);
+}
 
-    function spawnPowerUp(x, y) {
-        if (Math.random() < 0.3) {
-            const types = ['shield', 'doubleCredit', 'repair', 'timeFreeze'];
-            const type = types[Math.floor(Math.random() * types.length)];
-            powerUps.push({ x, y, z: Math.random() * 20 - 10, type, life: 300 });
-        }
+function showRoguelikeChoice(){
+    if(!state.roguelikeMode)return;
+    const choices=[
+        {text:I18N[state.lang].choice_risk,options:['Take 20 damage +500 CR','Take 10 damage +200 CR','No risk'],effects:[()=>{state.stability-=20;state.credits+=500},()=>{state.stability-=10;state.credits+=200},()=>{}]},
+        {text:I18N[state.lang].choice_path,options:['Safe: +100 CR','Dangerous: +500 CR, -15 HP','Mystery: Random'],effects:[()=>{state.credits+=100},()=>{state.credits+=500;state.stability-=15},()=>{Math.random()>0.5?state.credits+=300:state.stability-=10}]},
+        {text:I18N[state.lang].choice_upgrade,options:['Free Upgrade','300 CR','Nothing'],effects:[()=>{const u=['hp','cb','density','crit','resist'];upgrade(u[Math.floor(Math.random()*u.length)])},()=>{state.credits+=300},()=>{}]},
+        {text:I18N[state.lang].choice_heal,options:['Heal 50 HP','+200 CR','Save for later'],effects:[()=>{state.stability=Math.min(state.maxStability,state.stability+50)},()=>{state.credits+=200},()=>{state.items.shield=(state.items.shield||0)+1}]}
+    ];
+    currentRoguelikeChoices=choices[Math.floor(Math.random()*choices.length)];
+    document.getElementById('roguelike-choice-text').textContent=currentRoguelikeChoices.text;
+    document.getElementById('roguelike-opt1').textContent=currentRoguelikeChoices.options[0];
+    document.getElementById('roguelike-opt2').textContent=currentRoguelikeChoices.options[1];
+    document.getElementById('roguelike-opt3').textContent=currentRoguelikeChoices.options[2];
+    document.getElementById('roguelike-choice').classList.add('active');
+}
+
+function makeRoguelikeChoice(index){
+    if(!currentRoguelikeChoices)return;
+    currentRoguelikeChoices.effects[index]();
+    document.getElementById('roguelike-choice').classList.remove('active');
+    addLog(`🎲 Choice made: ${currentRoguelikeChoices.options[index]}`,false,true,true);
+    playSound(800,'sine',0.2,0.15);
+    currentRoguelikeChoices=null;
+    updateAllUI();saveGame();
+}
+
+// ============================================================
+// BOSS SYSTEM
+// ============================================================
+function spawnBoss(){
+    state.bossActive=true;state.bossType='firewall';
+    state.bossHP=state.bossMaxHP=100+state.sector*10;
+    document.getElementById('mode-indicator').style.display='inline';
+    document.getElementById('boss-name').style.display='block';
+    document.getElementById('boss-health-bar').style.display='block';
+    playSound(100,'sawtooth',1.5,0.3);
+    addLog(`⚔ ${I18N[state.lang].log_boss}!`,true);
+    for(let i=0;i<5;i++)spawnEnemy();
+}
+
+function damageBoss(damage){
+    if(!state.bossActive)return;
+    state.bossHP-=damage;screenShake=Math.min(15,damage);
+    if(state.bossHP<=0){
+        const reward=1000+state.sector*100;
+        state.bossActive=false;state.credits+=reward;state.gems+=5;state.bossKills++;
+        document.getElementById('mode-indicator').style.display='none';
+        document.getElementById('boss-name').style.display='none';
+        document.getElementById('boss-health-bar').style.display='none';
+        addLog(`👑 BOSS DEFEATED! +${reward} CR +5 💎`,false,true);
+        playMelody([{freq:523,dur:0.15},{freq:659,dur:0.15},{freq:784,dur:0.15},{freq:1047,dur:0.3}]);
+        unlockAchievement('firstBoss');if(state.bossKills>=5)unlockAchievement('bossHunter');
+        updateQuestProgress('boss',1);
     }
+    updateAllUI();
+}
 
-    function resize() {
-        const v = document.getElementById("viewport");
-        gCanvas.width = v.clientWidth;
-        gCanvas.height = v.clientHeight;
-        bCanvas.width = window.innerWidth;
-        bCanvas.height = window.innerHeight;
+// ============================================================
+// SKILLS & UPGRADES
+// ============================================================
+function activateSkill(type){
+    const costs={time:200,magnet:0,lightning:0};
+    const skill=state.skills[type];
+    if(!skill||!skill.unlocked||skill.cooldown>0||(costs[type]>0&&state.credits<costs[type]))return;
+    if(costs[type]>0)state.credits-=costs[type];
+    switch(type){case'time':state.activeSkills.time=300;break;case'magnet':state.activeSkills.magnet=200;break;case'lightning':state.activeSkills.lightning=180;break;}
+    skill.cooldown=skill.maxCooldown;
+    playSound(600+Object.keys(state.skills).indexOf(type)*100,'sine',0.3,0.2);
+    addLog(`Skill activated: ${type}`,false,false,true);
+    updateAllUI();
+}
+
+function upgrade(type){
+    const costs={hp:500,cb:750,density:1000,crit:1500,resist:2000};
+    if(state.credits<costs[type])return;
+    state.credits-=costs[type];
+    switch(type){case'hp':state.maxStability+=50;state.stability=Math.min(state.stability+50,state.maxStability);break;case'cb':state.comboMod+=0.2;break;case'density':state.nodeDensity+=1;init();break;case'crit':state.critChance=Math.min(0.5,state.critChance+0.05);break;case'resist':state.damageResist=Math.min(0.5,state.damageResist+0.05);break;}
+    addLog(`${I18N[state.lang].log_upgrade} ${type.toUpperCase()}`);
+    playSound(900,'sine',0.2,0.15);saveGame();updateAllUI();
+}
+
+// ============================================================
+// LOTTERY & SHOP
+// ============================================================
+function spinLottery(times){
+    const cost=times===1?100:(times===5?450:800);
+    if(state.credits<cost)return;
+    state.credits-=cost;state.totalSpins+=times;
+    const prizes=[{icon:'💰',value:50,type:'credits',weight:30},{icon:'💰',value:100,type:'credits',weight:25},{icon:'💰',value:200,type:'credits',weight:15},{icon:'💎',value:1,type:'gems',weight:10},{icon:'💎',value:3,type:'gems',weight:8},{icon:'🛡️',value:'Shield',type:'item',itemType:'shield',weight:5},{icon:'💰',value:'2x Credit',type:'item',itemType:'doubleCredit',weight:4},{icon:'✨',value:500,type:'credits',weight:2},{icon:'💎',value:10,type:'gems',weight:1}];
+    const totalWeight=prizes.reduce((s,p)=>s+p.weight,0);
+    const results=[];
+    for(let t=0;t<times;t++){let rand=Math.random()*totalWeight;for(const p of prizes){rand-=p.weight;if(rand<=0){results.push(p);break;}}}
+    let totalGain='';
+    results.forEach(r=>{if(r.type==='credits'){state.credits+=r.value;totalGain+=`+${r.value} CR `}else if(r.type==='gems'){state.gems+=r.value;totalGain+=`+${r.value} 💎 `}else{state.items[r.itemType]=(state.items[r.itemType]||0)+1;totalGain+=`${r.value} `}});
+    addLog(`🎰 Lottery: ${totalGain}`,false,true);playSound(1000+Math.random()*500,'sine',0.3,0.2);
+    updateAllUI();saveGame();
+}
+
+function buyItem(item){
+    const prices={shield_pack:5,credit_boost:10,stability_restore:15,combo_multiplier:20,xp_boost:25};
+    if(state.gems<prices[item]){addLog("❌ Not enough gems!",true);return;}
+    state.gems-=prices[item];state.totalPurchases++;
+    switch(item){case'shield_pack':state.items.shield+=3;addLog("🛡️ Purchased Shield Pack x3!");break;case'credit_boost':state.credits+=1000;state.totalCreditsEarned+=1000;addLog("💰 +1000 Credits!");break;case'stability_restore':state.stability=state.maxStability;addLog("❤️ Stability restored!");break;case'combo_multiplier':state.comboMultiplier24h=true;addLog("🔥 Combo Multiplier activated!");break;case'xp_boost':state.xpBoost24h=true;addLog("⭐ XP Boost activated!");break;}
+    playSound(1200,'sine',0.2,0.2);updateAllUI();saveGame();
+}
+
+// ============================================================
+// QUESTS
+// ============================================================
+function generateQuests(){
+    state.quests={extract:{goal:50+Math.floor(Math.random()*50),progress:0,reward:200,type:'credits'},credits:{goal:500+Math.floor(Math.random()*500),progress:0,reward:300,type:'credits'},boss:{goal:1+Math.floor(Math.random()*2),progress:0,reward:5,type:'gems'},combo:{goal:5+Math.floor(Math.random()*10),progress:0,reward:100,type:'credits'}};
+    state.questResetTime=Date.now()+86400000;
+}
+function updateQuestProgress(type,amount){
+    if(!state.quests[type])return;
+    state.quests[type].progress=Math.min(state.quests[type].goal,state.quests[type].progress+amount);
+    if(state.quests[type].progress>=state.quests[type].goal){
+        const reward=state.quests[type].reward;
+        if(state.quests[type].type==='credits')state.credits+=reward;else state.gems+=reward;
+        addLog(`✅ Quest completed! +${reward} ${state.quests[type].type}`,false,true);
+        state.quests[type].goal*=2;state.quests[type].progress=0;state.quests[type].reward=Math.floor(state.quests[type].reward*1.5);
     }
+}
 
-    function getEventPos(e) {
-        const rect = gCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-    }
+// ============================================================
+// ACHIEVEMENTS
+// ============================================================
+const ACHIEVEMENTS={firstExtract:{name:"First Blood"},hundredNodes:{name:"Centurion"},thousandCredits:{name:"Gold Rush"},combo10:{name:"Combo Master"},firstBoss:{name:"Firewall Breaker"},thousandNodes:{name:"Data Hoarder"},tenThousandCredits:{name:"Millionaire"},combo25:{name:"Combo God"},bossHunter:{name:"Boss Hunter"},gemCollector:{name:"Gem Collector"}};
 
-    function onStart(e) {
-        e.preventDefault();
-        initAudio();
-        dragging = true; path = [];
-        const pos = getEventPos(e);
-        mousePos = pos;
-        handleInteraction(pos);
-    }
+function checkAchievements(){
+    const checks={firstExtract:state.nodesExtracted>=1,hundredNodes:state.nodesExtracted>=100,thousandCredits:state.totalCreditsEarned>=1000,combo10:state.combo>=10,firstBoss:state.bossKills>=1,thousandNodes:state.nodesExtracted>=1000,tenThousandCredits:state.totalCreditsEarned>=10000,combo25:state.combo>=25,bossHunter:state.bossKills>=5,gemCollector:state.gems>=10};
+    Object.entries(checks).forEach(([id,c])=>{if(c&&!state.achievements[id])unlockAchievement(id);});
+}
 
-    function onMove(e) {
-        if (!dragging) return;
-        e.preventDefault();
-        const pos = getEventPos(e);
-        mousePos = pos;
-        handleInteraction(pos);
-    }
+function unlockAchievement(id){
+    if(state.achievements[id])return;state.achievements[id]=true;
+    const ach=ACHIEVEMENTS[id];if(!ach)return;
+    playSound(1200,'sine',0.2,0.2);
+    const popup=document.createElement('div');popup.className='achievement-popup';popup.innerHTML=`🏆<br><small>${ach.name}</small>`;document.getElementById('achievement-popup-container').appendChild(popup);setTimeout(()=>popup.remove(),5000);
+    addLog(`${I18N[state.lang].log_achievement} ${ach.name}`,false,true);
+}
 
-    function onEnd(e) {
-        if (!dragging) return;
-        e.preventDefault();
-        dragging = false;
-        
-        if (path.length >= 4) {
-            let baseGain = path.length * 25;
-            let specialCount = path.filter(n => n.type === 1).length;
-            let multiplier = (1 + state.comboMod + specialCount * 0.5) * state.combo;
-            if (state.activeSkills.time > 0) multiplier *= 1.5;
-            if (state.items.doubleCredit > 0) { multiplier *= 2; state.items.doubleCredit--; }
-            if (state.comboMultiplier24h) multiplier *= 2;
-            let gain = Math.floor(baseGain * multiplier);
-            
-            state.credits += gain;
-            state.totalCreditsEarned += gain;
-            state.nodesExtracted += path.length;
-            state.combo++;
-            if (state.combo > state.maxCombo) state.maxCombo = state.combo;
-            
-            // Chance to earn gems
-            if (Math.random() < 0.05) {
-                state.gems++;
-                addLog("💎 Found a gem!", false);
-            }
-            
-            path.forEach(n => {
-                n.extracted = true;
-                for (let i = 0; i < 5; i++) {
-                    particles.push({
-                        x: n.x, y: n.y - state.cameraY, z: n.z,
-                        vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, vz: (Math.random() - 0.5) * 4,
-                        life: 1, color: n.type === 1 ? '#ff0055' : '#00d9ff'
-                    });
-                }
-                if (Math.random() < 0.15) spawnPowerUp(n.x, n.y);
-            });
-            
-            playSound(800 + path.length * 50, 'square', 0.15, 0.1);
-            addLog(I18N[state.lang].log_win + ` +${gain} CR (x${state.combo})`);
-            
-            checkAchievements();
-            
-            if (Math.floor(state.cameraY / 1000) + 1 > state.sector) {
-                state.sector = Math.floor(state.cameraY / 1000) + 1;
-                if (state.sector % 50 === 0) spawnBoss();
-            }
-            
-            document.getElementById('combo-popup').style.opacity = '1';
-            document.getElementById('combo-popup').innerText = `x${state.combo}`;
-            setTimeout(() => document.getElementById('combo-popup').style.opacity = '0', 1000);
-            
-            setTimeout(() => {
-                path.forEach(n => {
-                    n.extracted = false;
-                    n.type = Math.random() < 0.06 ? 1 : 0;
-                    n.size = n.type === 1 ? 8 : 5;
-                    n.z = Math.random() * 20 - 10;
-                });
-            }, 2000);
-            
-        } else if (path.length > 0) {
-            let damage = state.items.shield > 0 ? 0 : (15 - path.length * 2);
-            damage = Math.max(5, damage);
-            if (state.items.shield > 0) {
-                state.items.shield--;
-                addLog("🛡 Shield absorbed damage!", false);
-            }
-            state.stability -= damage;
-            state.combo = Math.max(1, state.combo - 2);
-            glitch = 15; screenShake = 10;
-            playSound(200, 'sawtooth', 0.2, 0.15);
-            addLog(I18N[state.lang].log_fail + ` -${damage}`, true);
-        }
-        
-        nodes.forEach(n => n.active = false);
-        path = [];
-        updateUI();
-        saveGame();
-    }
+// ============================================================
+// LEADERBOARD
+// ============================================================
+function loadLeaderboard(){const s=localStorage.getItem('overlord_leaderboard');if(s)try{state.leaderboard=JSON.parse(s)}catch(e){}}
+function saveLeaderboard(){state.leaderboard.push({credits:state.totalCreditsEarned,nodes:state.nodesExtracted,level:state.level,bossKills:state.bossKills,date:Date.now()});state.leaderboard.sort((a,b)=>b.credits-a.credits);state.leaderboard=state.leaderboard.slice(0,20);localStorage.setItem('overlord_leaderboard',JSON.stringify(state.leaderboard));}
 
-    function handleInteraction(pos) {
-        const x = pos.x;
-        const y = pos.y + state.cameraY;
-        
-        powerUps.forEach((p, i) => {
-            if (Math.hypot(p.x - x, p.y - y) < 35) {
-                collectPowerUp(p, i);
-            }
-        });
-        
-        let closestNode = null;
-        let minDist = state.activeSkills.magnet > 0 ? 60 : 30;
-        
-        nodes.forEach(n => {
-            if (n.extracted) return;
-            const dist = Math.hypot(n.x - x, n.y - y);
-            if (dist < minDist) { minDist = dist; closestNode = n; }
-        });
-        
-        if (closestNode && !path.includes(closestNode)) {
-            if (path.length > 0) {
-                let last = path[path.length - 1];
-                let distance = Math.abs(last.r - closestNode.r) + Math.abs(last.c - closestNode.c);
-                let maxDist = state.activeSkills.lightning > 0 ? 2 : 1;
-                if (distance > maxDist) return;
-            }
-            path.push(closestNode);
-            closestNode.active = true;
-            
-            if (closestNode.y - state.cameraY > gCanvas.height * 0.7) state.cameraTargetY += 110;
-            if (closestNode.y - state.cameraY < gCanvas.height * 0.2 && state.cameraTargetY > 0) state.cameraTargetY -= 110;
-        }
-    }
+// ============================================================
+// UI UPDATES
+// ============================================================
+function updateAllUI(){
+    document.getElementById("hp").innerText=Math.floor(state.stability);
+    document.getElementById("cr").innerText=state.credits.toLocaleString();
+    document.getElementById("sc").innerText=state.sector;
+    document.getElementById("combo").innerText='x'+state.combo;
+    document.getElementById("gems").innerText=state.gems;
+    document.getElementById("level").innerText=state.level;
+    document.getElementById("hp-bar").style.width=(state.stability/state.maxStability*100)+"%";
+    document.getElementById("cb-bar").style.width=Math.min(100,state.comboMod*50)+"%";
+    document.getElementById("dn-bar").style.width=Math.min(100,state.nodeDensity*10)+"%";
+    document.getElementById("cc-bar").style.width=(state.critChance*100)+"%";
+    document.getElementById("dr-bar").style.width=(state.damageResist*100)+"%";
+    document.getElementById("boss-health-fill").style.width=(state.bossHP/state.bossMaxHP*100)+"%";
+    document.getElementById("up-hp").disabled=state.credits<500;
+    document.getElementById("up-cb").disabled=state.credits<750;
+    document.getElementById("up-dn").disabled=state.credits<1000;
+    document.getElementById("up-cc").disabled=state.credits<1500;
+    document.getElementById("up-dr").disabled=state.credits<2000;
+    document.getElementById("stats-nodes").innerText=state.nodesExtracted.toLocaleString();
+    document.getElementById("stats-credits").innerText=state.totalCreditsEarned.toLocaleString();
+    document.getElementById("stats-combo").innerText=state.maxCombo;
+    document.getElementById("stats-bosses").innerText=state.bossKills;
+    document.getElementById("stats-xp").innerText=`${state.xp}/${state.xpToNext}`;
+    if(state.nodesExtracted>=50)state.skills.magnet.unlocked=true;
+    if(state.nodesExtracted>=200)state.skills.lightning.unlocked=true;
+    document.getElementById('skill-magnet').classList.toggle('locked',!state.skills.magnet.unlocked);
+    document.getElementById('skill-lightning').classList.toggle('locked',!state.skills.lightning.unlocked);
+    document.getElementById('skill-time').classList.toggle('activated',state.activeSkills.time>0);
+    document.getElementById('skill-magnet').classList.toggle('activated',state.activeSkills.magnet>0);
+    document.getElementById('skill-lightning').classList.toggle('activated',state.activeSkills.lightning>0);
+    document.getElementById('skill-time-cd').style.width=Math.max(0,(1-state.skills.time.cooldown/state.skills.time.maxCooldown)*100)+"%";
+    document.getElementById('skill-magnet-cd').style.width=Math.max(0,(1-state.skills.magnet.cooldown/state.skills.magnet.maxCooldown)*100)+"%";
+    document.getElementById('skill-lightning-cd').style.width=Math.max(0,(1-state.skills.lightning.cooldown/state.skills.lightning.maxCooldown)*100)+"%";
+    if(state.activeEvent&&Date.now()<state.eventEndTime)document.getElementById('event-indicator').style.display='inline';
+    else{document.getElementById('event-indicator').style.display='none';state.activeEvent=null;}
+    const itemsContainer=document.getElementById('items-container');
+    if(itemsContainer){const icons={shield:'🛡️',doubleCredit:'💰',repair:'❤️',timeFreeze:'⏱️',xpBoost:'⭐'};itemsContainer.innerHTML=Object.entries(state.items).filter(([_,v])=>v>0).map(([k,v])=>`<div style="color:var(--green);">${icons[k]||'📦'} ${k}: ${v}</div>`).join('')||'<div style="color:rgba(0,217,255,0.4);">None</div>';}
+    const achList=document.getElementById('achievements-list');
+    if(achList)achList.innerHTML=Object.keys(state.achievements).map(k=>`🏆 ${ACHIEVEMENTS[k]?.name||k}`).join('<br>')||'None yet';
+    if(state.stability<=30){document.getElementById("hp").style.color='#ff0055';document.getElementById("hp-bar").style.background='#ff0055';}else{document.getElementById("hp").style.color='#fff';document.getElementById("hp-bar").style.background='#00d9ff';}
+    if(state.stability<=0){state.stability=Math.floor(state.maxStability*0.5);state.credits=Math.floor(state.credits*0.8);state.combo=1;addLog("💀 SIGNAL LOST",true);playSound(150,'sawtooth',0.5,0.3);saveGame();}
+}
 
-    function collectPowerUp(p, index) {
-        state.items[p.type] = (state.items[p.type] || 0) + 1;
-        powerUps.splice(index, 1);
-        playSound(1000, 'sine', 0.1, 0.2);
-        addLog(`⬆ ${p.type} collected!`, false);
-        updateUI();
-    }
+// ============================================================
+// LOG & LANGUAGE
+// ============================================================
+function addLog(msg,warn=false,gold=false,purple=false){
+    const f=document.getElementById("logs");if(!f)return;
+    const d=document.createElement("div");d.className='log-entry';if(warn)d.classList.add('warn');if(gold)d.classList.add('gold');if(purple)d.classList.add('purple');d.innerText=msg;f.prepend(d);while(f.children.length>30)f.lastChild.remove();
+}
 
-    function spawnBoss() {
-        state.bossActive = true;
-        state.bossHP = state.bossMaxHP = 100 + state.sector * 10;
-        document.getElementById('mode-indicator').style.display = 'inline';
-        document.getElementById('boss-health-bar').style.display = 'block';
-        playSound(100, 'sawtooth', 1, 0.3);
-        addLog(I18N[state.lang].log_boss, true);
-    }
+function changeLang(l){state.lang=l;refreshText();saveGame();}
+function refreshText(){
+    const d=I18N[state.lang];if(!d)return;
+    document.getElementById("l-aug").innerText=d.aug;document.getElementById("l-feed").innerText=d.feed;
+    document.getElementById("l-up1").innerText=d.up1;document.getElementById("l-up2").innerText=d.up2;
+    document.getElementById("l-items").innerText=d.l_items;
+}
 
-    function damageBoss(damage) {
-        if (!state.bossActive) return;
-        state.bossHP -= damage;
-        if (state.bossHP <= 0) {
-            state.bossActive = false;
-            state.credits += 1000;
-            state.gems += 5;
-            state.bossKills++;
-            document.getElementById('mode-indicator').style.display = 'none';
-            document.getElementById('boss-health-bar').style.display = 'none';
-            addLog("> 👑 BOSS DEFEATED! +1000 CR +5 💎", false);
-            playSound(1500, 'square', 0.5, 0.3);
-            unlockAchievement('firstBoss');
-        }
-        updateUI();
-    }
+// ============================================================
+// MODAL CONTROLS
+// ============================================================
+function showShop(){document.getElementById('modal-shop').classList.add('active');}
+function hideShop(){document.getElementById('modal-shop').classList.remove('active');}
+function showQuests(){updateQuestsUI();document.getElementById('modal-quests').classList.add('active');}
+function hideQuests(){document.getElementById('modal-quests').classList.remove('active');}
+function showLeaderboard(){updateLeaderboardUI();document.getElementById('modal-leaderboard').classList.add('active');}
+function hideLeaderboard(){document.getElementById('modal-leaderboard').classList.remove('active');}
+function showHelp(){document.getElementById('modal-help').classList.add('active');}
+function hideHelp(){document.getElementById('modal-help').classList.remove('active');}
 
-    function checkAchievements() {
-        const ach = state.achievements;
-        if (!ach.firstExtract) unlockAchievement('firstExtract');
-        if (!ach.hundredNodes && state.nodesExtracted >= 100) unlockAchievement('hundredNodes');
-        if (!ach.thousandCredits && state.totalCreditsEarned >= 1000) unlockAchievement('thousandCredits');
-        if (!ach.combo10 && state.combo >= 10) unlockAchievement('combo10');
-        if (!ach.thousandNodes && state.nodesExtracted >= 1000) unlockAchievement('thousandNodes');
-        if (!ach.tenThousandCredits && state.totalCreditsEarned >= 10000) unlockAchievement('tenThousandCredits');
-        if (!ach.combo25 && state.combo >= 25) unlockAchievement('combo25');
-        if (!ach.bossKill && state.bossKills >= 1) unlockAchievement('firstBoss');
-        if (!ach.bossHunter && state.bossKills >= 5) unlockAchievement('bossHunter');
-        if (!ach.gemCollector && state.gems >= 10) unlockAchievement('gemCollector');
-    }
+function updateQuestsUI(){
+    const container=document.getElementById('quests-container');if(!container)return;
+    const questNames={extract:"Extract nodes",credits:"Earn credits",boss:"Defeat boss",combo:"Reach combo"};
+    container.innerHTML=Object.entries(state.quests).map(([key,q])=>{const p=Math.min(100,(q.progress/q.goal)*100);const c=q.progress>=q.goal;return`<div style="background:rgba(0,0,0,0.3);border:1px solid ${c?'var(--green)':'rgba(255,215,0,0.3)'};padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:10px;"><div style="flex:1;"><div style="color:#fff;font-size:11px;">${questNames[key]||key}</div><div style="font-size:9px;color:#888;">${q.progress}/${q.goal}</div><div class="progress-bar" style="margin-top:3px;"><div class="fill" style="width:${p}%;background:${c?'var(--green)':'var(--gold)'};"></div></div></div><span style="color:var(--gold);font-family:'Orbitron';font-size:11px;">+${q.reward} ${q.type}</span></div>`}).join('');
+}
 
-    function unlockAchievement(id) {
-        if (state.achievements[id]) return;
-        state.achievements[id] = true;
-        playSound(1200, 'sine', 0.2, 0.2);
-        
-        const names = {
-            firstExtract: "First Blood", hundredNodes: "Centurion",
-            thousandCredits: "Gold Rush", combo10: "Combo Master",
-            firstBoss: "Firewall Breaker", thousandNodes: "Data Hoarder",
-            tenThousandCredits: "Millionaire", combo25: "Combo God",
-            bossHunter: "Boss Hunter", gemCollector: "Gem Collector"
-        };
-        const popup = document.createElement('div');
-        popup.className = 'achievement-popup';
-        popup.innerHTML = `🏆<br><small>${names[id]}</small>`;
-        document.getElementById('achievement-popup-container').appendChild(popup);
-        setTimeout(() => popup.remove(), 5000);
-        updateAchievementsUI();
-        addLog(I18N[state.lang].log_achievement + ` ${names[id]}`, false);
-    }
+function updateLeaderboardUI(){
+    const container=document.getElementById('leaderboard-container');if(!container)return;
+    if(state.leaderboard.length===0){container.innerHTML='<p style="color:#888;">No scores yet!</p>';return;}
+    container.innerHTML=state.leaderboard.map((e,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,217,255,0.2);margin-bottom:4px;"><span style="font-size:16px;min-width:25px;">${i+1}.</span><div style="flex:1;"><span style="color:#fff;">💰 ${e.credits.toLocaleString()} CR</span><span style="color:#888;font-size:9px;margin-left:8px;">Lv.${e.level} | ${e.nodes} nodes</span></div></div>`).join('');
+}
 
-    function activateSkill(type) {
-        if (type === 'time' && state.skills.time.unlocked && state.credits >= 200 && state.skills.time.cooldown <= 0) {
-            state.credits -= 200; state.activeSkills.time = 300;
-            state.skills.time.cooldown = state.skills.time.maxCooldown;
-            playSound(600, 'sine', 0.3, 0.2);
-            addLog("⏱ Time Slow activated!", false);
-        } else if (type === 'magnet' && state.skills.magnet.unlocked && state.skills.magnet.cooldown <= 0) {
-            state.activeSkills.magnet = 200;
-            state.skills.magnet.cooldown = state.skills.magnet.maxCooldown;
-            playSound(700, 'sine', 0.3, 0.2);
-            addLog("🧲 Magnet activated!", false);
-        } else if (type === 'lightning' && state.skills.lightning.unlocked && state.skills.lightning.cooldown <= 0) {
-            state.activeSkills.lightning = 180;
-            state.skills.lightning.cooldown = state.skills.lightning.maxCooldown;
-            playSound(800, 'sine', 0.3, 0.2);
-            addLog("⚡ Lightning activated!", false);
-        }
-        updateUI();
-    }
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
 
-    function upgrade(type) {
-        if (type === 'hp' && state.credits >= 500) {
-            state.credits -= 500; state.maxStability += 50; state.stability = Math.min(state.stability + 50, state.maxStability);
-        } else if (type === 'cb' && state.credits >= 750) {
-            state.credits -= 750; state.comboMod += 0.2;
-        } else if (type === 'density' && state.credits >= 1000) {
-            state.credits -= 1000; state.nodeDensity += 1; init();
-        } else return;
-        addLog(I18N[state.lang].log_upgrade, false);
-        saveGame(); updateUI();
-    }
+// ============================================================
+// GAME LOOP
+// ============================================================
+function update(){
+    time++;state.cameraY+=(state.cameraTargetY-state.cameraY)*0.08;
+    if(screenShake>0)screenShake*=0.9;if(screenShake<0.1)screenShake=0;
+    if(glitch>0)glitch--;
+    particles=particles.filter(p=>{p.life-=0.015;return p.life>0;});particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;});
+    damageNumbers=damageNumbers.filter(d=>{d.life-=0.02;d.y+=d.vy;return d.life>0;});
+    enemies.forEach((e,i)=>{e.x+=Math.cos(e.direction)*e.speed;e.y+=Math.sin(e.direction)*e.speed;e.z+=Math.sin(time*0.01+i)*0.5;e.rotation+=e.rotSpeed;if(e.x<0||e.x>gCanvas.width)e.direction=Math.PI-e.direction;if(e.y<0||e.y>500*110)e.y=Math.random()*500*110;e.direction+=(Math.random()-0.5)*0.05;
+        if(dragging&&Math.hypot(e.x-mousePos.x,e.y-(mousePos.y+state.cameraY))<e.size){if(e.health>1){e.health--;addDamageNumber(e.x,e.y,-1,'#ff8800');}else{state.stability-=e.damage*0.1;enemies.splice(i,1);spawnEnemy();if(state.bossActive)damageBoss(10);}}});
+    Object.keys(state.activeSkills).forEach(k=>{if(state.activeSkills[k]>0)state.activeSkills[k]--;});
+    Object.keys(state.skills).forEach(k=>{if(state.skills[k].cooldown>0)state.skills[k].cooldown--;});
+    powerUps.forEach(p=>{p.life--;p.rotation+=p.rotSpeed;});powerUps=powerUps.filter(p=>p.life>0);
+    if(state.activeEvent&&Date.now()>state.eventEndTime){state.activeEvent=null;addLog("Event ended.");}
+    updateAllUI();
+    if(time%1800===0){saveGame();saveLeaderboard();}
+}
 
-    function updateSkillsUI() {
-        if (state.nodesExtracted >= 50) state.skills.magnet.unlocked = true;
-        if (state.nodesExtracted >= 200) state.skills.lightning.unlocked = true;
-        
-        const magnetEl = document.getElementById('skill-magnet');
-        const lightningEl = document.getElementById('skill-lightning');
-        
-        if (state.skills.magnet.unlocked) magnetEl.classList.remove('locked');
-        if (state.skills.lightning.unlocked) lightningEl.classList.remove('locked');
-        
-        document.getElementById('skill-time').classList.toggle('activated', state.activeSkills.time > 0);
-        magnetEl.classList.toggle('activated', state.activeSkills.magnet > 0);
-        lightningEl.classList.toggle('activated', state.activeSkills.lightning > 0);
-    }
+// ============================================================
+// RENDER
+// ============================================================
+function draw(){
+    bctx.fillStyle="#020205";bctx.fillRect(0,0,bCanvas.width,bCanvas.height);
+    stars.forEach(s=>{s.y+=s.v;s.twinkle+=s.twinkleSpeed;if(s.y>bCanvas.height){s.y=0;s.x=Math.random()*bCanvas.width;s.z=0;}const scale=1+s.z/100;const alpha=s.brightness*0.15*scale*(0.5+0.5*Math.sin(s.twinkle));bctx.fillStyle=`rgba(0,217,255,${alpha})`;bctx.fillRect(s.x,s.y,2*scale,2*scale);});
+    gctx.save();const shakeX=(Math.random()-0.5)*screenShake,shakeY=(Math.random()-0.5)*screenShake;gctx.translate(shakeX,shakeY);
+    gctx.fillStyle=glitch>0?"rgba(255,0,85,0.03)":"rgba(2,2,5,0.2)";gctx.fillRect(0,0,gCanvas.width,gCanvas.height);
+    gctx.save();gctx.translate(0,-state.cameraY);
+    const stepY=110;gctx.strokeStyle="rgba(0,217,255,0.02)";gctx.lineWidth=1;
+    for(let row=0;row<500;row+=10){const y=(row+1)*stepY;if(y>state.cameraY-50&&y<state.cameraY+gCanvas.height+50){gctx.beginPath();gctx.moveTo(0,y);gctx.lineTo(gCanvas.width,y);gctx.stroke();}}
+    enemies.forEach(e=>{if(Math.abs(e.y-state.cameraY-gCanvas.height/2)>gCanvas.height+100)return;const scale=1+e.z/50;gctx.save();gctx.translate(e.x,e.y);gctx.scale(scale,scale);gctx.rotate(e.rotation);gctx.fillStyle='rgba(0,0,0,0.3)';gctx.fillRect(-e.size/2+3,-e.size/2+3,e.size,e.size);
+        if(e.type==='firewall'){const gr=gctx.createLinearGradient(-e.size/2,-e.size/2,e.size/2,e.size/2);gr.addColorStop(0,'rgba(255,0,85,0.5)');gr.addColorStop(1,'rgba(255,0,85,0.1)');gctx.fillStyle=gr;gctx.fillRect(-e.size/2,-e.size/2,e.size,e.size);gctx.strokeStyle="#ff0055";gctx.lineWidth=2;gctx.strokeRect(-e.size/2,-e.size/2,e.size,e.size);}
+        else if(e.type==='virus'){const gr=gctx.createRadialGradient(0,0,0,0,0,e.size);gr.addColorStop(0,'rgba(180,77,255,0.5)');gr.addColorStop(1,'rgba(180,77,255,0.1)');gctx.fillStyle=gr;gctx.beginPath();gctx.arc(0,0,e.size,0,Math.PI*2);gctx.fill();gctx.strokeStyle="#b44dff";gctx.lineWidth=2;gctx.stroke();}
+        else{const gr=gctx.createRadialGradient(0,0,0,0,0,e.size);gr.addColorStop(0,'rgba(255,215,0,0.5)');gr.addColorStop(1,'rgba(255,215,0,0.1)');gctx.fillStyle=gr;gctx.beginPath();gctx.arc(0,0,e.size,0,Math.PI*2);gctx.fill();gctx.strokeStyle="#ffd700";gctx.lineWidth=2;gctx.stroke();}gctx.restore();});
+    powerUps.forEach(p=>{const scale=1+p.z/50;gctx.save();gctx.translate(p.x,p.y);gctx.scale(scale,scale);gctx.rotate(p.rotation);const colors={shield:'#00ff88',doubleCredit:'#ffd700',repair:'#00d9ff',timeFreeze:'#b44dff',xpBoost:'#ff8800'};gctx.shadowColor=colors[p.type];gctx.shadowBlur=15;gctx.strokeStyle=colors[p.type];gctx.lineWidth=2;gctx.strokeRect(-12,-12,24,24);gctx.shadowBlur=0;gctx.fillStyle='#fff';gctx.font='14px Arial';gctx.textAlign='center';gctx.textBaseline='middle';gctx.fillText(p.type[0],0,0);gctx.restore();});
+    nodes.forEach(n=>{if(Math.abs(n.y-state.cameraY-gCanvas.height/2)>gCanvas.height+50)return;if(n.extracted)return;const scale=1+n.z/30;const size=(n.active?n.size+3:n.size)*scale;if(n.active||n.type===1||n.type===2){gctx.shadowColor=n.type===2?'#b44dff':(n.type===1?'#ff0055':'#00d9ff');gctx.shadowBlur=15;}gctx.beginPath();gctx.arc(n.x,n.y,size,0,Math.PI*2);
+        if(n.active){gctx.fillStyle="#fff";gctx.fill();gctx.strokeStyle="#fff";gctx.lineWidth=2;gctx.stroke();}else if(n.type===2){gctx.fillStyle="rgba(180,77,255,0.2)";gctx.fill();gctx.strokeStyle="#b44dff";gctx.lineWidth=2;gctx.stroke();}else if(n.type===1){gctx.fillStyle="rgba(255,0,85,0.2)";gctx.fill();gctx.strokeStyle="#ff0055";gctx.lineWidth=1.5;gctx.stroke();}else{gctx.strokeStyle="rgba(0,217,255,0.3)";gctx.lineWidth=1;gctx.stroke();}gctx.shadowBlur=0;});
+    if(path.length>1){gctx.shadowColor='#00d9ff';gctx.shadowBlur=20;gctx.strokeStyle="rgba(0,217,255,0.6)";gctx.lineWidth=5;gctx.beginPath();gctx.moveTo(path[0].x,path[0].y);path.forEach(p=>gctx.lineTo(p.x,p.y));gctx.stroke();gctx.shadowBlur=0;gctx.strokeStyle="#fff";gctx.lineWidth=2;gctx.beginPath();gctx.moveTo(path[0].x,path[0].y);path.forEach(p=>gctx.lineTo(p.x,p.y));gctx.stroke();path.forEach(p=>{gctx.beginPath();gctx.arc(p.x,p.y,4,0,Math.PI*2);gctx.fillStyle="#fff";gctx.fill();});}
+    gctx.restore();
+    particles.forEach(p=>{const scale=1+p.z/30;gctx.fillStyle=p.color;gctx.globalAlpha=p.life;gctx.fillRect(p.x,p.y+state.cameraY,3*scale,3*scale);});gctx.globalAlpha=1;
+    damageNumbers.forEach(d=>{gctx.fillStyle=d.color;gctx.globalAlpha=d.life;gctx.font='bold 14px Orbitron';gctx.fillText(d.text,d.x,d.y+state.cameraY);});gctx.globalAlpha=1;
+    if(dragging&&path.length>0){const ln=path[path.length-1];gctx.beginPath();gctx.moveTo(ln.x,ln.y-state.cameraY);gctx.lineTo(mousePos.x,mousePos.y);gctx.strokeStyle="rgba(0,217,255,0.4)";gctx.lineWidth=2;gctx.setLineDash([5,5]);gctx.stroke();gctx.setLineDash([]);}
+    gctx.restore();requestAnimationFrame(()=>draw());
+}
 
-    function updateUI() {
-        document.getElementById("hp").innerText = Math.floor(state.stability);
-        document.getElementById("cr").innerText = state.credits;
-        document.getElementById("sc").innerText = state.sector;
-        document.getElementById("combo").innerText = 'x' + state.combo;
-        document.getElementById("gems").innerText = state.gems;
-        
-        document.getElementById("hp-bar").style.width = (state.stability / state.maxStability * 100) + "%";
-        document.getElementById("cb-bar").style.width = (state.comboMod * 50) + "%";
-        document.getElementById("dn-bar").style.width = (state.nodeDensity * 10) + "%";
-        document.getElementById("boss-health-fill").style.width = (state.bossHP / state.bossMaxHP * 100) + "%";
-        
-        document.getElementById("up-hp").disabled = state.credits < 500;
-        document.getElementById("up-cb").disabled = state.credits < 750;
-        document.getElementById("up-dn").disabled = state.credits < 1000;
-        
-        document.getElementById("spin-1").disabled = state.credits < 100;
-        document.getElementById("spin-5").disabled = state.credits < 450;
-        document.getElementById("spin-10").disabled = state.credits < 800;
-        
-        document.getElementById("stats-nodes").innerText = state.nodesExtracted;
-        document.getElementById("stats-credits").innerText = state.totalCreditsEarned;
-        document.getElementById("stats-combo").innerText = state.maxCombo;
-        document.getElementById("stats-bosses").innerText = state.bossKills;
-        
-        document.getElementById("skill-time-cd").style.width = Math.max(0, (1 - state.skills.time.cooldown / state.skills.time.maxCooldown) * 100) + "%";
-        document.getElementById("skill-magnet-cd").style.width = Math.max(0, (1 - state.skills.magnet.cooldown / state.skills.magnet.maxCooldown) * 100) + "%";
-        document.getElementById("skill-lightning-cd").style.width = Math.max(0, (1 - state.skills.lightning.cooldown / state.skills.lightning.maxCooldown) * 100) + "%";
-        
-        updateSkillsUI();
-        
-        // Update items display
-        const itemsContainer = document.getElementById('items-container');
-        itemsContainer.innerHTML = Object.entries(state.items).map(([k, v]) => {
-            if (v <= 0) return '';
-            const icons = { shield: '🛡️', doubleCredit: '💰', repair: '❤️', timeFreeze: '⏱️' };
-            return `<div style="color: var(--green);">${icons[k] || ''} ${k}: ${v}</div>`;
-        }).join('') || '<div style="color: rgba(0, 217, 255, 0.4);">None</div>';
-        
-        if (state.stability <= 30) {
-            document.getElementById("hp").style.color = '#ff0055';
-            document.getElementById("hp-bar").style.background = '#ff0055';
-        } else {
-            document.getElementById("hp").style.color = '#fff';
-            document.getElementById("hp-bar").style.background = '#00d9ff';
-        }
-        
-        if (state.stability <= 0) {
-            state.stability = Math.floor(state.maxStability * 0.5);
-            state.credits = Math.floor(state.credits * 0.8);
-            state.combo = 1;
-            saveGame(); updateUI();
-        }
-    }
-
-    function updateAchievementsUI() {
-        const list = document.getElementById('achievements-list');
-        const names = {
-            firstExtract: "First Blood", hundredNodes: "Centurion",
-            thousandCredits: "Gold Rush", combo10: "Combo Master",
-            firstBoss: "Firewall Breaker", thousandNodes: "Data Hoarder",
-            tenThousandCredits: "Millionaire", combo25: "Combo God",
-            bossHunter: "Boss Hunter", gemCollector: "Gem Collector"
-        };
-        list.innerHTML = Object.keys(state.achievements).map(k => `🏆 ${names[k]}`).join('<br>') || 'None yet';
-    }
-
-    function addLog(msg, warn = false) {
-        const f = document.getElementById("logs");
-        const d = document.createElement("div");
-        d.className = 'log-entry';
-        d.style.color = warn ? "#ff0055" : "rgba(0, 217, 255, 0.7)";
-        d.innerText = msg;
-        f.prepend(d);
-        while (f.children.length > 20) f.lastChild.remove();
-    }
-
-    function changeLang(l) { state.lang = l; refreshText(); saveGame(); }
-    function refreshText() {
-        const d = I18N[state.lang];
-        if (!d) return;
-        document.getElementById("t-title").innerText = d.title;
-        document.getElementById("t-desc").innerText = d.intro + "\n\n" + d.rules;
-        document.getElementById("t-btn").innerText = d.btn;
-        document.getElementById("l-hp-text").innerText = d.hp;
-        document.getElementById("l-cr-text").innerText = d.cr;
-        document.getElementById("l-sc-text").innerText = d.sc;
-        document.getElementById("l-aug").innerText = d.aug;
-        document.getElementById("l-feed").innerText = d.feed;
-        document.getElementById("l-up1").innerText = d.up1;
-        document.getElementById("l-up2").innerText = d.up2;
-        document.getElementById("l-items").innerText = d.l_items;
-    }
-
-    // Lottery system
-    function openLottery() {
-        initAudio();
-        document.getElementById('lottery-modal').style.display = 'flex';
-        document.getElementById('lottery-result').innerText = '';
-    }
-    function closeLottery() { document.getElementById('lottery-modal').style.display = 'none'; }
-    
-    function spinLottery(times) {
-        const cost = times === 1 ? 100 : (times === 5 ? 450 : 800);
-        if (state.credits < cost) return;
-        state.credits -= cost;
-        
-        const slots = document.getElementById('lottery-slots').children;
-        const results = [];
-        
-        for (let t = 0; t < times; t++) {
-            const prizes = [
-                { icon: '💰', prize: 50, type: 'credits' },
-                { icon: '💰', prize: 100, type: 'credits' },
-                { icon: '💰', prize: 200, type: 'credits' },
-                { icon: '💎', prize: 1, type: 'gems' },
-                { icon: '💎', prize: 2, type: 'gems' },
-                { icon: '🛡️', prize: 'Shield x1', type: 'item', itemType: 'shield' },
-                { icon: '💰', prize: 'Double Credits', type: 'item', itemType: 'doubleCredit' },
-                { icon: '✨', prize: 500, type: 'credits' },
-                { icon: '💎', prize: 5, type: 'gems' },
-                { icon: '🎯', prize: 'All items +1', type: 'allItems' }
-            ];
-            results.push(prizes[Math.floor(Math.random() * prizes.length)]);
-        }
-        
-        // Animate slots
-        let spinCount = 0;
-        const spinInterval = setInterval(() => {
-            for (let slot of slots) {
-                slot.innerText = ['💰', '💎', '🛡️', '✨', '🎯'][Math.floor(Math.random() * 5)];
-            }
-            spinCount++;
-            if (spinCount > 10) {
-                clearInterval(spinInterval);
-                // Show results
-                let totalGain = '';
-                results.forEach(r => {
-                    if (r.type === 'credits') {
-                        state.credits += r.prize;
-                        totalGain += `+${r.prize} CR `;
-                    } else if (r.type === 'gems') {
-                        state.gems += r.prize;
-                        totalGain += `+${r.prize} 💎 `;
-                    } else if (r.type === 'item') {
-                        state.items[r.itemType] = (state.items[r.itemType] || 0) + 1;
-                        totalGain += `${r.prize} `;
-                    } else if (r.type === 'allItems') {
-                        Object.keys(state.items).forEach(k => state.items[k]++);
-                        totalGain += 'ALL ITEMS +1 ';
-                    }
-                });
-                
-                for (let slot of slots) slot.innerText = results[0].icon;
-                document.getElementById('lottery-result').innerText = totalGain || 'Try again!';
-                playSound(1000 + Math.random() * 500, 'sine', 0.3, 0.2);
-            }
-        }, 100);
-        
-        updateUI();
-        saveGame();
-    }
-
-    // Shop system
-    function openShop() { initAudio(); document.getElementById('shop-modal').style.display = 'flex'; }
-    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
-    
-    function buyItem(item) {
-        const prices = {
-            shield_pack: 5, credit_boost: 10, stability_restore: 15,
-            combo_multiplier: 20, rare_powerup: 25
-        };
-        
-        if (state.gems < prices[item]) {
-            addLog("Not enough gems!", true);
-            return;
-        }
-        
-        state.gems -= prices[item];
-        
-        switch(item) {
-            case 'shield_pack':
-                state.items.shield += 3;
-                addLog("🛡️ Purchased Shield Pack x3!");
-                break;
-            case 'credit_boost':
-                state.credits += 1000;
-                state.totalCreditsEarned += 1000;
-                addLog("💰 +1000 Credits!");
-                break;
-            case 'stability_restore':
-                state.stability = state.maxStability;
-                addLog("❤️ Stability fully restored!");
-                break;
-            case 'combo_multiplier':
-                state.comboMultiplier24h = true;
-                addLog("🔥 Combo Multiplier activated! (24h)");
-                break;
-            case 'rare_powerup':
-                const types = ['shield', 'doubleCredit', 'repair', 'timeFreeze'];
-                const randomType = types[Math.floor(Math.random() * types.length)];
-                state.items[randomType] = (state.items[randomType] || 0) + 2;
-                addLog(`✨ Rare ${randomType} +2!`);
-                break;
-        }
-        
-        playSound(1200, 'sine', 0.2, 0.2);
-        updateUI();
-        saveGame();
-    }
-
-    // Tutorial
-    function showTutorial() { document.getElementById('tutorial-modal').style.display = 'flex'; }
-    function closeTutorial() { document.getElementById('tutorial-modal').style.display = 'none'; }
-
-    function update() {
-        time++;
-        state.cameraY += (state.cameraTargetY - state.cameraY) * 0.1;
-        if (screenShake > 0) screenShake *= 0.9;
-        
-        particles = particles.filter(p => { p.life -= 0.02; return p.life > 0; });
-        particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.z += p.vz; });
-        
-        enemies.forEach((e, i) => {
-            e.x += Math.cos(e.direction) * e.speed;
-            e.y += Math.sin(e.direction) * e.speed;
-            e.z += Math.sin(time * 0.01 + i) * 0.5;
-            e.rotation += e.rotSpeed;
-            if (e.x < 0 || e.x > gCanvas.width) e.direction = Math.PI - e.direction;
-            e.direction += (Math.random() - 0.5) * 0.05;
-            
-            if (dragging && Math.hypot(e.x - mousePos.x, e.y - (mousePos.y + state.cameraY)) < e.size) {
-                state.stability -= e.damage * 0.1;
-                enemies.splice(i, 1);
-                spawnEnemy();
-                if (state.bossActive) damageBoss(10);
-            }
-        });
-        
-        Object.keys(state.activeSkills).forEach(k => {
-            if (state.activeSkills[k] > 0) state.activeSkills[k]--;
-        });
-        
-        Object.keys(state.skills).forEach(k => {
-            if (state.skills[k].cooldown > 0) state.skills[k].cooldown--;
-        });
-        
-        powerUps = powerUps.filter(p => { p.life--; return p.life > 0; });
-        
-        updateUI();
-    }
-
-    function draw() {
-        // 3D starfield background
-        bctx.fillStyle = "#020205";
-        bctx.fillRect(0, 0, bCanvas.width, bCanvas.height);
-        
-        stars.forEach(s => {
-            s.y += s.v;
-            s.z += 0.1;
-            if (s.y > bCanvas.height) { s.y = 0; s.x = Math.random() * bCanvas.width; s.z = 0; }
-            const scale = 1 + s.z / 100;
-            const alpha = s.brightness * 0.15 * scale;
-            bctx.fillStyle = `rgba(0, 217, 255, ${alpha})`;
-            bctx.fillRect(s.x, s.y, 2 * scale, 2 * scale);
-        });
-
-        // Game canvas with 3D effects
-        gctx.save();
-        const shakeX = (Math.random() - 0.5) * screenShake;
-        const shakeY = (Math.random() - 0.5) * screenShake;
-        gctx.translate(shakeX, shakeY);
-        
-        gctx.fillStyle = glitch > 0 ? "rgba(255, 0, 85, 0.05)" : "rgba(2, 2, 5, 0.2)";
-        gctx.fillRect(0, 0, gCanvas.width, gCanvas.height);
-        if (glitch > 0) glitch--;
-
-        gctx.save();
-        gctx.translate(0, -state.cameraY);
-        
-        // Draw 3D enemies
-        enemies.forEach(e => {
-            if (Math.abs(e.y - state.cameraY - gCanvas.height/2) > gCanvas.height + 100) return;
-            const scale = 1 + e.z / 50;
-            gctx.save();
-            gctx.translate(e.x, e.y);
-            gctx.scale(scale, scale);
-            gctx.rotate(e.rotation);
-            
-            // 3D shadow
-            gctx.fillStyle = 'rgba(0,0,0,0.3)';
-            gctx.fillRect(-e.size/2 + 3, -e.size/2 + 3, e.size, e.size);
-            
-            if (e.type === 'firewall') {
-                const gradient = gctx.createLinearGradient(-e.size/2, -e.size/2, e.size/2, e.size/2);
-                gradient.addColorStop(0, 'rgba(255, 0, 85, 0.5)');
-                gradient.addColorStop(1, 'rgba(255, 0, 85, 0.1)');
-                gctx.fillStyle = gradient;
-                gctx.fillRect(-e.size/2, -e.size/2, e.size, e.size);
-                gctx.strokeStyle = "#ff0055";
-                gctx.lineWidth = 2;
-                gctx.strokeRect(-e.size/2, -e.size/2, e.size, e.size);
-            } else if (e.type === 'virus') {
-                const gradient = gctx.createRadialGradient(0, 0, 0, 0, 0, e.size);
-                gradient.addColorStop(0, 'rgba(180, 77, 255, 0.5)');
-                gradient.addColorStop(1, 'rgba(180, 77, 255, 0.1)');
-                gctx.fillStyle = gradient;
-                gctx.beginPath();
-                gctx.arc(0, 0, e.size, 0, Math.PI * 2);
-                gctx.fill();
-                gctx.strokeStyle = "#b44dff";
-                gctx.lineWidth = 2;
-                gctx.stroke();
-            } else {
-                const gradient = gctx.createRadialGradient(0, 0, 0, 0, 0, e.size);
-                gradient.addColorStop(0, 'rgba(255, 215, 0, 0.5)');
-                gradient.addColorStop(1, 'rgba(255, 215, 0, 0.1)');
-                gctx.fillStyle = gradient;
-                gctx.beginPath();
-                gctx.arc(0, 0, e.size, 0, Math.PI * 2);
-                gctx.fill();
-                gctx.strokeStyle = "#ffd700";
-                gctx.lineWidth = 2;
-                gctx.stroke();
-            }
-            gctx.restore();
-        });
-        
-        // Draw 3D power-ups
-        powerUps.forEach(p => {
-            const scale = 1 + p.z / 50;
-            gctx.save();
-            gctx.translate(p.x, p.y);
-            gctx.scale(scale, scale);
-            gctx.rotate(time * 0.02);
-            
-            const colors = { shield: '#00ff88', doubleCredit: '#ffd700', repair: '#00d9ff', timeFreeze: '#b44dff' };
-            gctx.shadowColor = colors[p.type];
-            gctx.shadowBlur = 15;
-            gctx.strokeStyle = colors[p.type];
-            gctx.lineWidth = 2;
-            gctx.strokeRect(-12, -12, 24, 24);
-            gctx.shadowBlur = 0;
-            
-            gctx.fillStyle = '#fff';
-            gctx.font = '14px Arial';
-            gctx.textAlign = 'center';
-            gctx.textBaseline = 'middle';
-            gctx.fillText(p.type[0], 0, 0);
-            gctx.restore();
-        });
-        
-        // Draw 3D nodes
-        nodes.forEach(n => {
-            if (Math.abs(n.y - state.cameraY - gCanvas.height/2) > gCanvas.height + 50) return;
-            if (n.extracted) return;
-            
-            const scale = 1 + n.z / 30;
-            const size = (n.active ? n.size + 3 : n.size) * scale;
-            
-            // 3D glow
-            if (n.active || n.type === 1) {
-                gctx.shadowColor = n.type === 1 ? '#ff0055' : '#00d9ff';
-                gctx.shadowBlur = 15;
-            }
-            
-            gctx.beginPath();
-            gctx.arc(n.x, n.y, size, 0, Math.PI * 2);
-            
-            if (n.active) {
-                gctx.fillStyle = "#fff";
-                gctx.fill();
-                gctx.strokeStyle = "#fff";
-                gctx.lineWidth = 2;
-                gctx.stroke();
-            } else if (n.type === 1) {
-                gctx.fillStyle = "rgba(255, 0, 85, 0.2)";
-                gctx.fill();
-                gctx.strokeStyle = "#ff0055";
-                gctx.lineWidth = 1.5;
-                gctx.stroke();
-            } else {
-                gctx.strokeStyle = "rgba(0, 217, 255, 0.3)";
-                gctx.lineWidth = 1;
-                gctx.stroke();
-            }
-            gctx.shadowBlur = 0;
-        });
-        
-        // Draw path with 3D effect
-        if (path.length > 1) {
-            gctx.shadowColor = '#00d9ff';
-            gctx.shadowBlur = 20;
-            gctx.strokeStyle = "rgba(0, 217, 255, 0.6)";
-            gctx.lineWidth = 5;
-            gctx.beginPath(); gctx.moveTo(path[0].x, path[0].y);
-            path.forEach(p => gctx.lineTo(p.x, p.y));
-            gctx.stroke();
-            gctx.shadowBlur = 0;
-            
-            gctx.strokeStyle = "#fff";
-            gctx.lineWidth = 2;
-            gctx.beginPath(); gctx.moveTo(path[0].x, path[0].y);
-            path.forEach(p => gctx.lineTo(p.x, p.y));
-            gctx.stroke();
-            
-            path.forEach(p => {
-                gctx.beginPath();
-                gctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                gctx.fillStyle = "#fff";
-                gctx.fill();
-            });
-        }
-        
-        gctx.restore();
-        
-        // Draw 3D particles
-        particles.forEach(p => {
-            const scale = 1 + p.z / 30;
-            gctx.fillStyle = p.color;
-            gctx.globalAlpha = p.life;
-            gctx.fillRect(p.x, p.y + state.cameraY, 3 * scale, 3 * scale);
-        });
-        gctx.globalAlpha = 1;
-        
-        // Mouse cursor line
-        if (dragging && path.length > 0) {
-            const lastNode = path[path.length - 1];
-            gctx.beginPath();
-            gctx.moveTo(lastNode.x, lastNode.y - state.cameraY);
-            gctx.lineTo(mousePos.x, mousePos.y);
-            gctx.strokeStyle = "rgba(0, 217, 255, 0.4)";
-            gctx.lineWidth = 2;
-            gctx.setLineDash([5, 5]);
-            gctx.stroke();
-            gctx.setLineDash([]);
-        }
-        
-        gctx.restore();
-        requestAnimationFrame(() => draw());
-    }
-
-    // Event listeners
-    gCanvas.addEventListener('mousedown', onStart);
-    gCanvas.addEventListener('mousemove', onMove);
-    gCanvas.addEventListener('mouseup', onEnd);
-    gCanvas.addEventListener('mouseleave', onEnd);
-    gCanvas.addEventListener('touchstart', onStart, { passive: false });
-    gCanvas.addEventListener('touchmove', onMove, { passive: false });
-    gCanvas.addEventListener('touchend', onEnd);
-
-    window.addEventListener('resize', () => { resize(); init(); });
-    
-    window.addEventListener('keydown', (e) => {
-        switch(e.key) {
-            case 'ArrowUp': state.cameraTargetY = Math.max(0, state.cameraTargetY - 110); break;
-            case 'ArrowDown': state.cameraTargetY += 110; break;
-            case '1': activateSkill('time'); break;
-            case '2': activateSkill('magnet'); break;
-            case '3': activateSkill('lightning'); break;
-            case 's': if(e.ctrlKey) { e.preventDefault(); saveGame(); } break;
-            case 't': state.timedMode = !state.timedMode; break;
-        }
-    });
-
-    // Click outside modals to close
-    document.getElementById('tutorial-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeTutorial();
-    });
-    document.getElementById('lottery-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeLottery();
-    });
-    document.getElementById('shop-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeShop();
-    });
-
-    setInterval(update, 1000/60);
-    setInterval(() => { saveGame(); }, 30000);
-
-    loadGame();
-    init();
-    draw();
-    
-    console.log('%c🎮 BREACH: OVERLORD 3D ULTIMATE %cINITIALIZED', 'color: #00d9ff; font-size: 20px;', 'color: #fff;');
-    console.log('%cAll systems: Skills, Enemies, Bosses, Lottery, Shop, 3D effects, Tutorial', 'color: #888;');
-    console.log('%cPress ? for help or click HELP button in header', 'color: var(--gold);');
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+gCanvas.addEventListener('mousedown',onStart);gCanvas.addEventListener('mousemove',onMove);gCanvas.addEventListener('mouseup',onEnd);gCanvas.addEventListener('mouseleave',onEnd);
+gCanvas.addEventListener('touchstart',onStart,{passive:false});gCanvas.addEventListener('touchmove',onMove,{passive:false});gCanvas.addEventListener('touchend',onEnd);
+window.addEventListener('resize',()=>{resize();init();});
+window.addEventListener('keydown',(e)=>{switch(e.key){case'ArrowUp':state.cameraTargetY=Math.max(0,state.cameraTargetY-110);break;case'ArrowDown':state.cameraTargetY+=110;break;case'1':activateSkill('time');break;case'2':activateSkill('magnet');break;case'3':activateSkill('lightning');break;case'h':if(state.credits>=500){state.credits-=500;state.stability=Math.min(state.maxStability,state.stability+30);addLog("❤ Healed 30 HP");updateAllUI();}break;case't':state.timedMode=!state.timedMode;break;case's':if(e.ctrlKey){e.preventDefault();saveGame();}break;}});
+setInterval(update,1000/60);setInterval(()=>{saveGame();saveLeaderboard();},30000);
+loadGame();init();draw();
+if(!state.tutorialShown){setTimeout(()=>showHelp(),1000);state.tutorialShown=true;}
+console.log('%c🎲 BREACH: OVERLORD ROGUELIKE v5.0 %cINITIALIZED','color:#00d9ff;font-size:18px;','color:#fff;');
+console.log('%cRoguelike mode • Random events • Branching choices • Boss fights','color:#888;');
 </script>
 </body>
 </html>
